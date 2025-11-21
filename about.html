@@ -69,20 +69,20 @@
         .equip-layer { display: none; }
         .equip-layer.visible { display: block; }
         
+        /* 修改處：文字樣式微調 */
         .avatar-caption {
             margin-top: 15px;
-            font-size: 0.85em;
+            font-size: 0.9em;
             color: #888;
-            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1px;
+            /* 支援中文字體，讓它看起來像遊戲指令 */
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            font-weight: 500;
         }
 
         /* --- 右側：文字與技能區 --- */
         .content-section {
             flex: 1;
-            /* 
-               為了讓手機版可以使用 order 排序，
-               這裡預設為 block，手機版會改成 flex 
-            */
         }
 
         h1 {
@@ -93,11 +93,8 @@
             letter-spacing: 1px;
         }
 
-        /* 
-           ★ 修改處：字體變小 
-        */
         .bio-text {
-            font-size: 0.95rem; /* 原本是 1.1em，現在調小 */
+            font-size: 0.95rem;
             line-height: 1.6;
             color: #555;
             margin-bottom: 30px;
@@ -113,10 +110,12 @@
             color: #333;
             border-radius: 8px;
             font-size: 0.95em;
-            font-family: monospace;
+            /* 改回一般字體，比較好閱讀中文 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
+            flex-wrap: wrap; /* 防止手機版文字太長被切掉 */
         }
 
         .contact-info:hover {
@@ -141,7 +140,7 @@
             padding: 8px 16px;
             border-radius: 50px;
             cursor: pointer;
-            font-size: 0.9em; /* 按鈕文字也稍微縮小 */
+            font-size: 0.9em;
             color: #666;
             transition: all 0.2s;
             display: flex;
@@ -161,39 +160,32 @@
                 flex-direction: column;
                 align-items: center;
                 padding: 30px 20px;
-                gap: 20px; /* 縮小像素圖跟內容的間距 */
+                gap: 20px;
                 text-align: center;
             }
 
             .avatar-section { flex: auto; width: 100%; }
 
-            /* 
-               ★ 關鍵修改：重新排序內容 
-            */
             .content-section {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
             }
 
-            /* 將按鈕區 (.skills-grid) 移到最上面 (order: -1) */
+            /* 按鈕區移到上方 */
             .skills-grid {
                 order: -1; 
                 justify-content: center;
-                margin-bottom: 30px; /* 按鈕跟下方文字的距離 */
+                margin-bottom: 30px;
                 padding-bottom: 20px;
-                border-bottom: 1px dashed #eee; /* 加個虛線分隔，視覺比較清楚 */
+                border-bottom: 1px dashed #eee;
             }
 
             h1 { font-size: 1.8em; margin-bottom: 15px; }
             
-            .contact-info { margin-bottom: 20px; }
+            .contact-info { margin-bottom: 20px; justify-content: center; }
             
-            /* 文字靠左讀起來比較舒服，或者維持置中也可以，這邊設定靠左 */
-            .bio-text { 
-                text-align: left; 
-                font-size: 0.95rem; /* 手機上保持清晰 */
-            }
+            .bio-text { text-align: left; font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -253,7 +245,8 @@
                         </g>
                     </svg>
                 </div>
-                <div class="avatar-caption">LEVEL 1 DESIGNER</div>
+                <!-- 修改處：更新提示文字 -->
+                <div class="avatar-caption">點擊技能來裝備！</div>
             </div>
 
             <!-- 右側 (手機變下方) -->
@@ -262,8 +255,10 @@
                 
                 <h1>Hi, 我是 Betty C.</h1>
                 
+                <!-- 修改處：Email 前面加上引導文字 -->
                 <div class="contact-info" onclick="copyEmail()" title="點擊複製 Email">
-                    <span id="email-text">bochen722@gmail.com</span>
+                    <span style="margin-right: 5px;">歡迎與我聯繫：</span>
+                    <span id="email-text" style="font-weight: 600;">bochen722@gmail.com</span>
                     <span class="material-icons copy-icon" id="copy-icon">content_copy</span>
                     <span class="copy-msg" id="copy-msg">已複製！</span>
                 </div>
@@ -315,6 +310,7 @@
         }
 
         function copyEmail() {
+            // 這邊只複製 Email 地址，不會複製到「歡迎與我聯繫」
             const email = "bochen722@gmail.com";
             navigator.clipboard.writeText(email).then(() => {
                 const icon = document.getElementById('copy-icon');
