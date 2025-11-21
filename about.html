@@ -69,13 +69,11 @@
         .equip-layer { display: none; }
         .equip-layer.visible { display: block; }
         
-        /* 修改處：文字樣式微調 */
         .avatar-caption {
             margin-top: 15px;
             font-size: 0.9em;
             color: #888;
             letter-spacing: 1px;
-            /* 支援中文字體，讓它看起來像遊戲指令 */
             font-family: 'Segoe UI', Tahoma, sans-serif; 
             font-weight: 500;
         }
@@ -93,32 +91,44 @@
             letter-spacing: 1px;
         }
 
-        .bio-text {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #555;
+        /* 
+           ★ Email 區域容器 
+           用來讓「歡迎聯繫」文字跟「灰色按鈕」排列對齊
+        */
+        .contact-container {
+            display: flex;
+            align-items: center; /* 垂直置中 */
+            gap: 10px;
             margin-bottom: 30px;
+            flex-wrap: wrap; /* 預防螢幕太小爆版 */
         }
 
-        /* Email 區塊 */
-        .contact-info {
+        .contact-label {
+            font-weight: 500;
+            color: #555;
+            font-size: 1rem;
+        }
+
+        /* 
+           ★ Email 按鈕本體
+           現在只包含 email 地址和圖示
+        */
+        .contact-btn {
             display: inline-flex;
             align-items: center;
-            margin-bottom: 30px;
-            padding: 10px 20px;
-            background: #f4f4f4;
+            padding: 8px 16px;
+            background: #f4f4f4; /* 灰色背景 */
             color: #333;
             border-radius: 8px;
             font-size: 0.95em;
-            /* 改回一般字體，比較好閱讀中文 */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
-            flex-wrap: wrap; /* 防止手機版文字太長被切掉 */
         }
 
-        .contact-info:hover {
+        .contact-btn:hover {
             background-color: #e0e0e0;
             transform: translateY(-2px);
         }
@@ -126,6 +136,31 @@
         .copy-icon { font-size: 18px; margin-left: 10px; color: #888; }
         .copy-msg { margin-left: 10px; font-size: 0.9em; color: #4CAF50; font-weight: bold; opacity: 0; display: none; }
         .copy-msg.show { display: inline; opacity: 1; }
+
+        /* 
+           ★ 內文樣式 
+        */
+        .bio-text {
+            font-size: 0.95rem;
+            line-height: 1.8; /* 行距稍微加大一點點，比較好讀 */
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        .bio-text p {
+            margin: 0 0 20px 0; /* 段落間距 */
+        }
+
+        /* 
+           ★ 電腦版專用文字 
+           (手機版會被 hide) 
+        */
+        .desktop-only {
+            display: block;
+            margin-top: 20px;
+            font-weight: 600;
+            color: #333;
+        }
 
         /* 技能按鈕區 */
         .skills-grid {
@@ -183,9 +218,24 @@
 
             h1 { font-size: 1.8em; margin-bottom: 15px; }
             
-            .contact-info { margin-bottom: 20px; justify-content: center; }
+            /* 手機版 Email 區塊置中 */
+            .contact-container { 
+                justify-content: center; 
+                flex-direction: column; /* 手機上讓文字跟按鈕上下排列，比較不擠 */
+                gap: 8px;
+            }
             
-            .bio-text { text-align: left; font-size: 0.95rem; }
+            .bio-text { 
+                text-align: left; 
+                font-size: 0.95rem; 
+            }
+
+            /* 
+               ★ 隱藏「我的主要技能」這行字 
+            */
+            .desktop-only {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -245,7 +295,6 @@
                         </g>
                     </svg>
                 </div>
-                <!-- 修改處：更新提示文字 -->
                 <div class="avatar-caption">點擊技能來裝備！</div>
             </div>
 
@@ -255,18 +304,32 @@
                 
                 <h1>Hi, 我是 Betty C.</h1>
                 
-                <!-- 修改處：Email 前面加上引導文字 -->
-                <div class="contact-info" onclick="copyEmail()" title="點擊複製 Email">
-                    <span style="margin-right: 5px;">歡迎與我聯繫：</span>
-                    <span id="email-text" style="font-weight: 600;">bochen722@gmail.com</span>
-                    <span class="material-icons copy-icon" id="copy-icon">content_copy</span>
-                    <span class="copy-msg" id="copy-msg">已複製！</span>
+                <!-- 
+                   ★ 修改處：Email 結構分離 
+                   分為 .contact-label (純文字) 和 .contact-btn (灰色按鈕)
+                -->
+                <div class="contact-container">
+                    <span class="contact-label">歡迎與我聯繫：</span>
+                    <div class="contact-btn" onclick="copyEmail()" title="點擊複製 Email">
+                        <span id="email-text">bochen722@gmail.com</span>
+                        <span class="material-icons copy-icon" id="copy-icon">content_copy</span>
+                        <span class="copy-msg" id="copy-msg">已複製！</span>
+                    </div>
                 </div>
 
+                <!-- 
+                   ★ 修改處：內文結構
+                -->
                 <div class="bio-text">
-                    現任職於新創公司的 UI/UX 設計師，熱衷於學習新事物。<br>
-                    我相信好的設計不只是視覺上的美觀，更是邏輯與同理心的結合。<br><br>
-                    喜歡透過設計解決真實問題，讓產品不只好看，更要好用。<br>
+                    <p>
+                        現任職於新創公司的 UI/UX 設計師，熱衷於學習新事物。<br>
+                        我相信好的設計不只是視覺上的美觀，更是邏輯與同理心的結合。
+                    </p>
+                    
+                    <p>喜歡透過設計解決真實問題，讓產品不只好看，更要好用。</p>
+
+                    <!-- 這行字在手機版會被 CSS 隱藏 -->
+                    <span class="desktop-only">我的主要技能：</span>
                 </div>
 
                 <!-- 技能按鈕區 -->
@@ -309,7 +372,6 @@
         }
 
         function copyEmail() {
-            // 這邊只複製 Email 地址，不會複製到「歡迎與我聯繫」
             const email = "bochen722@gmail.com";
             navigator.clipboard.writeText(email).then(() => {
                 const icon = document.getElementById('copy-icon');
