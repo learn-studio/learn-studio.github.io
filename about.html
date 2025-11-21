@@ -10,36 +10,29 @@
         /* --- 基礎設定 --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #F9F7F2; /* 米白底色 */
+            background-color: #F9F7F2;
             margin: 0; padding: 0;
             color: #333;
             display: flex; flex-direction: column; min-height: 100vh;
         }
 
-        /* 這裡放 Header 佔位符的樣式 (避免載入前畫面跳動) */
         #header-container { min-height: 60px; }
 
-        /* --- 關於作者主要區塊 --- */
         .container {
             max-width: 960px;
             width: 100%;
-            margin: 60px auto; /* 上下留白 */
+            margin: 60px auto;
             padding: 0 20px;
             box-sizing: border-box;
             flex: 1;
         }
 
-        /* 
-         * 核心佈局：Profile Card 
-         * 電腦版：左圖右文
-         * 手機版：上圖下文
-         */
         .profile-card {
             display: flex;
-            flex-direction: row; /* 預設橫向排列 */
-            align-items: flex-start; /* 頂部對齊 */
+            flex-direction: row;
+            align-items: flex-start;
             justify-content: center;
-            gap: 60px; /* 左右間距 */
+            gap: 60px;
             background: #fff;
             padding: 50px;
             border-radius: 20px;
@@ -48,53 +41,43 @@
 
         /* --- 左側：像素人物區 --- */
         .avatar-section {
-            flex: 0 0 240px; /* 固定寬度，不讓它亂縮放 */
+            flex: 0 0 240px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        /* 像素畫布容器 */
         .pixel-canvas {
             width: 200px;
             height: 200px;
-            background-color: #f0f0f0; /* 淡淡的灰色背景，像小恐龍遊戲的沙漠 */
+            background-color: #f0f0f0;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #333; /* 復古黑框 */
+            border: 2px solid #333;
             position: relative;
         }
 
-        /* SVG 設定：關鍵是 image-rendering: pixelated */
         .pixel-svg {
-            width: 128px; /* 顯示大小 */
+            width: 128px;
             height: 128px;
-            image-rendering: pixelated; /* 讓像素放大後保持銳利鋸齒狀，不要模糊 */
+            image-rendering: pixelated;
         }
 
-        /* 裝備層動畫 */
-        .equip-layer {
-            display: none; /* 預設隱藏 */
-        }
-        .equip-layer.visible {
-            display: block; /* 顯示 */
-        }
+        .equip-layer { display: none; }
+        .equip-layer.visible { display: block; }
         
-        /* 裝飾文字 */
         .avatar-caption {
             margin-top: 15px;
             font-size: 0.9em;
             color: #888;
-            font-family: 'Courier New', Courier, monospace; /* 打字機字體 */
+            font-family: 'Courier New', Courier, monospace;
         }
 
         /* --- 右側：文字與技能區 --- */
-        .content-section {
-            flex: 1; /* 佔滿剩餘空間 */
-        }
+        .content-section { flex: 1; }
 
         h1 {
             font-size: 2.4em;
@@ -111,21 +94,61 @@
             margin-bottom: 30px;
         }
 
+        /* 
+         * ★ Email 複製按鈕樣式 (重點修改處)
+         */
         .contact-info {
-            display: inline-block;
+            display: inline-flex; /* 讓內容水平對齊 */
+            align-items: center;
             margin-bottom: 30px;
-            padding: 8px 16px;
+            padding: 10px 20px;
             background: #f4f4f4;
             color: #333;
-            border-radius: 6px;
-            font-size: 0.95em;
+            border-radius: 8px;
+            font-size: 1em;
             font-family: monospace;
+            cursor: pointer; /* 變手指 */
+            transition: all 0.2s;
+            position: relative; /* 定位用 */
+            user-select: none; /* 防止點擊時反白文字 */
         }
 
-        /* 技能開關按鈕區 */
+        .contact-info:hover {
+            background-color: #e0e0e0; /* Hover 變深一點 */
+            transform: translateY(-2px); /* 輕微上浮 */
+        }
+
+        .contact-info:active {
+            transform: translateY(0); /* 按下效果 */
+        }
+        
+        /* 複製圖示 */
+        .copy-icon {
+            font-size: 18px;
+            margin-left: 10px;
+            color: #888;
+        }
+
+        /* 複製成功的提示文字 */
+        .copy-msg {
+            margin-left: 10px;
+            font-size: 0.9em;
+            color: #4CAF50; /* 成功綠色 */
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: none; /* 預設不佔空間 */
+        }
+        
+        .copy-msg.show {
+            display: inline;
+            opacity: 1;
+        }
+
+        /* 技能按鈕區 */
         .skills-grid {
             display: flex;
-            flex-wrap: wrap; /* 超出換行 */
+            flex-wrap: wrap;
             gap: 12px;
         }
 
@@ -133,7 +156,7 @@
             background: #fff;
             border: 1px solid #ddd;
             padding: 8px 16px;
-            border-radius: 50px; /* 膠囊狀 */
+            border-radius: 50px;
             cursor: pointer;
             font-size: 0.95em;
             color: #666;
@@ -148,7 +171,6 @@
             color: #000;
         }
 
-        /* 按鈕啟動狀態 (黑底白字) */
         .skill-btn.active {
             background: #333;
             color: #fff;
@@ -159,121 +181,90 @@
 
         .btn-icon { font-size: 18px; }
 
-        /* --- RWD 手機版 --- */
         @media (max-width: 768px) {
             .container { margin: 30px auto; }
-            
             .profile-card {
-                flex-direction: column; /* 改為垂直排列 */
-                align-items: center; /* 置中 */
+                flex-direction: column;
+                align-items: center;
                 padding: 30px 20px;
                 gap: 30px;
-                text-align: center; /* 文字置中 */
+                text-align: center;
             }
-
             .avatar-section { flex: auto; width: 100%; }
-            
             .content-section { width: 100%; }
-
-            .skills-grid {
-                justify-content: center; /* 按鈕置中 */
-            }
-            
+            .skills-grid { justify-content: center; }
             h1 { font-size: 1.8em; }
-            .bio-text { text-align: left; } /* 內文還是靠左比較好讀 */
+            .bio-text { text-align: left; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 載入 Header -->
     <div id="header-container" style="width: 100%;"></div>
 
-    <!-- 主要內容區 -->
     <div class="container">
         <div class="profile-card">
             
-            <!-- 左側：像素人物 (Chrome Dino 風格) -->
+            <!-- 左側：像素人物 -->
             <div class="avatar-section">
                 <div class="pixel-canvas">
-                    <!-- 
-                        32x32 的像素網格 
-                        fill="#333" 代表全黑色塊
-                    -->
                     <svg class="pixel-svg" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-                        
-                        <!-- 基礎人物：Betty (黑白像素風) -->
+                        <!-- 基礎人物 -->
                         <g id="base-character" fill="#333">
-                            <!-- 身體 -->
                             <rect x="12" y="16" width="8" height="10" />
-                            <!-- 腳 -->
                             <rect x="13" y="26" width="2" height="4" />
                             <rect x="17" y="26" width="2" height="4" />
-                            <!-- 手 (自然垂下) -->
                             <rect x="10" y="17" width="2" height="6" />
                             <rect x="20" y="17" width="2" height="6" />
-                            
-                            <!-- 頭部 -->
                             <rect x="10" y="6" width="12" height="10" />
-                            
-                            <!-- 臉部鏤空 (利用白色遮罩做眼睛) -->
-                            <rect x="12" y="10" width="2" height="2" fill="#f0f0f0" /> <!-- 左眼 -->
-                            <rect x="18" y="10" width="2" height="2" fill="#f0f0f0" /> <!-- 右眼 -->
-
-                            <!-- 髮型：中分瀏海 -->
-                            <!-- 左邊瀏海 -->
+                            <rect x="12" y="10" width="2" height="2" fill="#f0f0f0" />
+                            <rect x="18" y="10" width="2" height="2" fill="#f0f0f0" />
                             <rect x="10" y="6" width="5" height="3" />
                             <rect x="10" y="9" width="2" height="3" /> 
-                            <!-- 右邊瀏海 -->
                             <rect x="17" y="6" width="5" height="3" />
                             <rect x="20" y="9" width="2" height="3" />
-                            
-                            <!-- 髮型：馬尾 (在頭的左側或右側突出一塊像素) -->
-                            <rect x="22" y="7" width="3" height="4" /> <!-- 馬尾本體 -->
-                            <rect x="23" y="11" width="2" height="2" /> <!-- 馬尾尾端 -->
+                            <rect x="22" y="7" width="3" height="4" />
+                            <rect x="23" y="11" width="2" height="2" />
                         </g>
 
-                        <!-- 裝備：眼鏡 (UI設計) -->
+                        <!-- UI設計 - 白色眼鏡 -->
                         <g id="prop-glasses" class="equip-layer">
-                            <rect x="11" y="10" width="4" height="2" fill="#333" />
-                            <rect x="17" y="10" width="4" height="2" fill="#333" />
-                            <rect x="15" y="11" width="2" height="1" fill="#333" /> <!-- 鼻樑架 -->
+                            <rect x="11" y="10" width="4" height="2" fill="#f0f0f0" />
+                            <rect x="17" y="10" width="4" height="2" fill="#f0f0f0" />
+                            <rect x="15" y="11" width="2" height="1" fill="#f0f0f0" />
                         </g>
 
-                        <!-- 裝備：學士帽 (UX方法論) -->
+                        <!-- UX方法論 - 帽子 -->
                         <g id="prop-hat" class="equip-layer">
-                            <rect x="8" y="4" width="16" height="2" fill="#333" /> <!-- 帽簷 -->
-                            <rect x="12" y="2" width="8" height="2" fill="#333" /> <!-- 帽頂 -->
-                            <rect x="23" y="4" width="1" height="4" fill="#333" /> <!-- 流蘇 -->
+                            <rect x="8" y="4" width="16" height="2" fill="#333" />
+                            <rect x="12" y="2" width="8" height="2" fill="#333" />
+                            <rect x="23" y="4" width="1" height="4" fill="#333" />
                         </g>
 
-                        <!-- 裝備：書本 (終身學習) -->
+                        <!-- 終身學習 - 書本 -->
                         <g id="prop-book" class="equip-layer">
                             <rect x="21" y="20" width="6" height="5" fill="#333" />
-                            <rect x="22" y="21" width="4" height="3" fill="#fff" /> <!-- 書頁 -->
+                            <rect x="22" y="21" width="4" height="3" fill="#fff" />
                         </g>
 
-                        <!-- 裝備：愛心 (心理學) -->
+                        <!-- 心理學 - 愛心 -->
                         <g id="prop-heart" class="equip-layer">
-                            <!-- 飄在頭上的愛心 -->
                             <path d="M25 5 h2 v-2 h2 v2 h2 v2 h-2 v2 h-2 v-2 h-2 z" fill="#333"/>
                         </g>
 
-                        <!-- 裝備：對話框 (溝通力) -->
+                        <!-- 溝通力 - 對話框 -->
                         <g id="prop-chat" class="equip-layer">
-                            <!-- 飄在左邊的 ... -->
                             <rect x="3" y="4" width="6" height="5" fill="#333" />
-                            <rect x="4" y="5" width="4" height="3" fill="#fff" /> <!-- 氣泡內白 -->
+                            <rect x="4" y="5" width="4" height="3" fill="#fff" />
                             <rect x="5" y="6" width="1" height="1" fill="#333" />
                             <rect x="7" y="6" width="1" height="1" fill="#333" />
                         </g>
 
-                        <!-- 裝備：魔法棒 (跨界整合) -->
+                        <!-- 跨界整合 - 魔法棒 -->
                         <g id="prop-wand" class="equip-layer">
                              <rect x="8" y="14" width="2" height="8" fill="#333" transform="rotate(-15 9 18)"/>
-                             <rect x="7" y="12" width="2" height="2" fill="#333" /> <!-- 星星頭 -->
+                             <rect x="7" y="12" width="2" height="2" fill="#333" />
                         </g>
-
                     </svg>
                 </div>
                 <div class="avatar-caption">LEVEL 1 DESIGNER</div>
@@ -283,8 +274,16 @@
             <div class="content-section">
                 <h1>Hi, 我是 Betty C.</h1>
                 
-                <div class="contact-info">
-                    bochen722@gmail.com
+                <!-- 
+                    ★ 修改處：點擊複製區塊 
+                    onclick="copyEmail()" 綁定複製功能
+                -->
+                <div class="contact-info" onclick="copyEmail()" title="點擊複製 Email">
+                    <span id="email-text">bochen722@gmail.com</span>
+                    <!-- 預設顯示圖示 -->
+                    <span class="material-icons copy-icon" id="copy-icon">content_copy</span>
+                    <!-- 複製成功顯示文字 -->
+                    <span class="copy-msg" id="copy-msg">已複製！</span>
                 </div>
 
                 <div class="bio-text">
@@ -294,7 +293,6 @@
                     下方是我的技能樹，點擊按鈕看看我裝備了什麼：
                 </div>
 
-                <!-- 技能按鈕 -->
                 <div class="skills-grid">
                     <button class="skill-btn" onclick="toggleProp('glasses', this)">
                         <span class="material-icons btn-icon">visibility</span> UI 設計
@@ -320,13 +318,11 @@
         </div>
     </div>
 
+    <!-- JS 功能區 -->
     <script>
-        // --- 技能互動邏輯 ---
+        // 1. 換裝功能
         function toggleProp(propName, btn) {
-            // 1. 切換按鈕樣式
             btn.classList.toggle('active');
-
-            // 2. 切換 SVG 裡面的裝備顯示
             const layer = document.getElementById('prop-' + propName);
             if (layer) {
                 if (btn.classList.contains('active')) {
@@ -336,16 +332,38 @@
                 }
             }
         }
+
+        // 2. 複製 Email 功能
+        function copyEmail() {
+            const email = "bochen722@gmail.com";
+            
+            // 使用 Clipboard API 複製文字
+            navigator.clipboard.writeText(email).then(() => {
+                // 成功後的 UI 回饋
+                const icon = document.getElementById('copy-icon');
+                const msg = document.getElementById('copy-msg');
+                
+                // 隱藏圖示，顯示「已複製！」
+                icon.style.display = 'none';
+                msg.classList.add('show');
+
+                // 2秒後還原
+                setTimeout(() => {
+                    msg.classList.remove('show');
+                    icon.style.display = 'inline';
+                }, 2000);
+            }).catch(err => {
+                console.error('複製失敗: ', err);
+            });
+        }
     </script>
 
     <script>
-        // 載入 Header (複製自之前的代碼)
+        // 載入 Header
         fetch('header.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('header-container').innerHTML = data;
-                
-                // 重新綁定 header 的 JS
                 window.toggleMobileMenu = function() {
                     const menu = document.getElementById('mobileNav');
                     const btnIcon = document.querySelector('.mobile-menu-btn .material-icons');
@@ -357,12 +375,10 @@
                         btnIcon.innerText = 'close';
                     }
                 };
-
                 document.addEventListener('click', function(event) {
                     const menu = document.getElementById('mobileNav');
                     const btn = document.querySelector('.mobile-menu-btn');
                     if(!menu || !btn) return;
-                    
                     const isClickInside = menu.contains(event.target) || btn.contains(event.target);
                     if (!isClickInside && menu.classList.contains('open')) {
                         menu.classList.remove('open');
