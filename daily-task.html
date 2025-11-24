@@ -208,6 +208,27 @@
         }
         .btn-accept:hover { background: #d97706; }
 
+        /* --- 新增 Stats List 樣式 --- */
+.stats-list {
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: auto; /* 內容太多時可捲動 */
+    border-top: 1px solid #eee;
+}
+.stat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 5px;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.95rem;
+}
+.stat-row:active { background-color: #f9fafb; } /* 點擊回饋 */
+.stat-name { color: #333; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+.stat-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent); }
+.stat-val { color: var(--text-sub); font-family: 'Roboto Mono'; font-weight: bold; }
+.stat-val span { color: var(--accent); font-size: 1.1em; }
+
     </style>
 </head>
 <body>
@@ -273,6 +294,9 @@
             <div style="position: relative; height: 300px; width: 100%;">
                 <canvas id="radarChart"></canvas>
             </div>
+
+        <div id="statsList" class="stats-list"></div>
+            
         </div>
     </div>
 
@@ -465,19 +489,81 @@
         function openStats() { document.getElementById('statsModal').classList.add('show'); renderChart(); }
         function closeStats() { document.getElementById('statsModal').classList.remove('show'); }
         function renderChart() {
-            const ctx = document.getElementById('radarChart').getContext('2d');
-            const labels = mandala.sectors.map(s => s.title);
-            const data = mandala.sectors.map(s => s.done.filter(Boolean).length);
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: labels,
-                    datasets: [{ label: '完成數 (0-8)', data: data, backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', pointBackgroundColor: '#fff', borderWidth: 2 }]
-                },
-                options: { scales: { r: { min: 0, max: 8, ticks: { display: false }, pointLabels: { font: { size: 11, family: "'Noto Sans TC'" } } } }, plugins: { legend: { display: false } } }
-            });
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    const labels = mandala.sectors.map(s => s.title);
+    const dataValues = mandala.sectors.map(s => s.done.filter(Boolean).length); // 完成的數量
+
+    // 1. 繪製雷達圖
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '完成數',
+                data: dataValues,
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: '#10b981',
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#10b981',
+                pointRadius: 4,     // 把點點稍微變大一點
+                pointHitRadius: 15, // ★ 關鍵：增加點擊的感應範圍
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 8,
+                    ticks: { display: false },
+                    pointLabels: {
+                        font: { size: 12, family: "'Noto Sans TC'" },
+                        color: '#333'
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return ` 完成: ${context.raw} / 8`;
+                        }
+                    }
+                }
+            },
+            // ★★★ 關鍵優化：讓點擊/觸摸更容易觸發 ★★★
+            interaction: {
+                mode: 'nearest', // 找最近的
+                axis: 'r',       // 徑向軸
+                intersect: false // 不需要精準點到線也能觸發
+            }
         }
+    });
+
+    // 2. 產生下方列表 (讓手機板更容易閱讀)
+    const listEl = document.getElementById('statsList');
+    listEl.innerHTML = '';
+    
+    mandala.sectors.forEach((s, i) => {
+        const count = dataValues[i];
+        const row = document.createElement('div');
+        row.className = 'stat-row';
+        // 點擊列表也可以觸發震動或效果(選用)
+        row.innerHTML = `
+            <div class="stat-name">
+                <div class="stat-dot" style="opacity: ${count > 0 ? 1 : 0.3}"></div>
+                ${s.title}
+            </div>
+            <div class="stat-val"><span>${count}</span>/8</div>
+        `;
+        listEl.appendChild(row);
+    });
+}
 
         init();
     </script>
