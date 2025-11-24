@@ -34,6 +34,15 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
+        /* ★★★ 新增：Header 容器設定 ★★★ */
+        #header-container {
+            width: 100%;
+            flex-shrink: 0; /* 關鍵：禁止被壓縮，防止被推上去看不見 */
+            z-index: 1001;  /* 確保層級比篩選器高 */
+            position: relative;
+            background-color: var(--bg-body); /* 避免透明導致重疊 */
+        }
+
         /* --- Loading --- */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -57,7 +66,8 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.03);
             width: 100%; z-index: 100;
             display: flex; flex-direction: column; align-items: center;
-            padding: 10px 0; flex-shrink: 0;
+            padding: 10px 0; 
+            flex-shrink: 0; /* 篩選器也不要被壓縮 */
         }
 
         /* A-Z Bar */
@@ -98,22 +108,20 @@
             font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        /* --- 主內容區 (Flex 設定修正) --- */
+        /* --- 主內容區 --- */
         #app { 
             flex: 1; width: 100%; 
             display: flex; 
-            justify-content: center; /* 讓卡片組置中 */
+            justify-content: center; 
             align-items: center; 
-            
-            /* ★修改：設定固定間距 20px */
-            gap: 20px; 
-            
+            gap: 20px; /* 卡片間距 */
             padding: 0 20px; 
             box-sizing: border-box; 
             padding-bottom: 100px; 
+            overflow: hidden; /* 防止內容溢出 */
         }
 
-        /* --- 卡片容器 (寬度修正) --- */
+        /* --- 卡片容器 --- */
         .card-container { 
             height: 52vh; 
             max-height: 500px; 
@@ -121,10 +129,9 @@
             perspective: 1000px; 
             cursor: pointer; 
 
-            /* ★修改：移除 margin: 0 auto (由 gap 控制)，加入 flex 屬性 */
             width: 100%;
-            max-width: 340px; /* 限制最大寬度，不會變得超寬 */
-            flex: 1 1 auto;   /* 允許縮小，但不隨意撐大 */
+            max-width: 340px; 
+            flex: 1 1 auto;   
         }
         
         .card { 
@@ -224,14 +231,15 @@
         /* 手機版優化 */
         @media (max-width: 600px) {
             .pagination { bottom: 20px; width: 85%; }
-            .card-container { width: 100% !important; height: 55vh; }
+            .card-container { width: 75vw !important; height: 55vh; } /* 確保手機版寬度 */
             .filter-bar { padding-left: 15px; }
         }
     </style>
 </head>
 <body>
 
-<div id="header-container" style="width: 100%;"></div>
+<!-- Header 容器 (CSS 中已防止被壓縮) -->
+<div id="header-container"></div>
     
     <div id="loading-overlay">
         <div class="spinner"></div>
@@ -387,13 +395,12 @@
             return Array.from(map.values());
         }
 
-        // ★★★ 修改：RWD 斷點邏輯 (符合 576px 需求) ★★★
         function updateItemsPerPage() {
             const w = window.innerWidth;
-            if (w < 576) itemsPerPage = 1;       // 576px 以下: 1張
-            else if (w < 1024) itemsPerPage = 2; // 576px - 1023px: 2張
-            else if (w < 1440) itemsPerPage = 3; // 1024px - 1439px: 3張
-            else itemsPerPage = 4;               // 1440px 以上: 4張
+            if (w < 576) itemsPerPage = 1;       
+            else if (w < 1024) itemsPerPage = 2; 
+            else if (w < 1440) itemsPerPage = 3; 
+            else itemsPerPage = 4;               
         }
 
         function initAZFilters() {
@@ -475,8 +482,6 @@
             pageData.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'card-container';
-                // ★★★ 移除強制 flex 設定，由 CSS 控制寬度與 gap ★★★
-
                 const kkId = `kk-${item.word}-${Math.random().toString(36).substr(2, 5)}`;
 
                 div.innerHTML = `
