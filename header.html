@@ -17,8 +17,13 @@
 
         /* --- Header CSS --- */
         .site-header {
+            /* ★★★ 修改重點：改為固定定位 ★★★ */
+            position: fixed; 
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 60px;
+            height: 60px; /* 這裡的高度要跟下方的 spacer 一樣 */
+            
             background-color: #ffffff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             display: flex;
@@ -26,18 +31,25 @@
             justify-content: space-between;
             padding: 0 20px;
             box-sizing: border-box;
-            position: relative;
-            z-index: 1000;
+            z-index: 1001; /* 確保在最上層 (比 main page 的 1000 高) */
             flex-shrink: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        /* ★★★ 新增：佔位區塊 ★★★ 
+           因為 Header 懸浮了，需要一個同樣高度的空盒子把內容往下推
+        */
+        .header-spacer {
+            width: 100%;
+            height: 60px; /* 必須跟 header 高度一致 */
+            flex-shrink: 0;
+        }
+
         /* 
            ★ 強制重置 header 內所有連結的樣式 
-           這段是為了對抗外部 CSS (如 bootstrap) 的干擾
         */
         .site-header a {
-            text-decoration: none !important; /* 移除底線 */
+            text-decoration: none !important;
             border: none !important;
         }
 
@@ -45,7 +57,7 @@
         .header-logo {
             font-size: 1.4em;
             font-weight: bold;
-            color: #333 !important; /* 強制黑色 */
+            color: #333 !important;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -60,12 +72,8 @@
             gap: 30px;
         }
 
-        /* 
-           ★ 導航連結樣式 (包含關於作者) 
-           使用 !important 確保顏色正確
-        */
         .nav-item {
-            color: #333 !important; /* 預設顏色：黑色 */
+            color: #333 !important;
             font-weight: 500;
             font-size: 16px;
             cursor: pointer;
@@ -75,11 +83,8 @@
             align-items: center;
         }
 
-        /* 
-           ★ Hover 變色效果 
-        */
         .nav-item:hover { 
-            color: #4CAF50 !important; /* 滑鼠移過：綠色 */
+            color: #4CAF50 !important;
         }
 
         /* 下拉選單容器 */
@@ -101,7 +106,7 @@
             box-shadow: 0 8px 16px rgba(0,0,0,0.15);
             border-radius: 0 0 8px 8px;
             overflow: hidden;
-            z-index: 1001;
+            z-index: 1002; /* 比 header 再高一點 */
         }
 
         .dropdown:hover .dropdown-content {
@@ -136,14 +141,15 @@
         /* 手機版導航 */
         .mobile-nav-overlay {
             display: none;
-            position: absolute;
-            top: 60px;
+            position: fixed; /* 改為 fixed 確保佔滿全螢幕且不跑版 */
+            top: 60px;       /* 剛好接在 Header 下方 */
             left: 0;
             width: 100%;
             background: white;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             flex-direction: column;
             border-top: 1px solid #eee;
+            z-index: 1000;
         }
         
         .mobile-nav-overlay a, .mobile-nav-overlay div {
@@ -195,7 +201,6 @@
             </div>
 
             <!-- 關於作者 (獨立連結) -->
-            <!-- 這裡使用了 class="nav-item" 並且配合 CSS 的 !important 強制樣式 -->
             <a href="https://learn-studio.github.io/about" class="nav-item">關於作者</a>
         </nav>
 
@@ -211,6 +216,9 @@
             <a href="https://learn-studio.github.io/about">關於作者</a>
         </div>
     </header>
+
+    <!-- ★★★ 關鍵：這是一個隱形的 Spacer，用來佔據高度，避免內容被 Fixed Header 擋住 ★★★ -->
+    <div class="header-spacer"></div>
 
     <script>
         function toggleMobileMenu() {
@@ -229,6 +237,10 @@
         document.addEventListener('click', function(event) {
             const menu = document.getElementById('mobileNav');
             const btn = document.querySelector('.mobile-menu-btn');
+            
+            // 防止 DOM 還沒載入時報錯
+            if (!menu || !btn) return;
+
             const isClickInside = menu.contains(event.target) || btn.contains(event.target);
             
             if (!isClickInside && menu.classList.contains('open')) {
