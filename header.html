@@ -17,8 +17,7 @@
 
         /* --- Header CSS --- */
         .site-header {
-            /* ★★★ 修改重點 1：改用 sticky (黏性定位) ★★★ */
-            /* 這樣它就是網頁內容的一部分，不會因為網址列伸縮而跑位 */
+            /* 黏性定位 */
             position: sticky; 
             top: 0;
             left: 0;
@@ -42,30 +41,33 @@
             
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
-            /* ★★★ 修改重點 2：避開 iPhone 瀏海/動態島 ★★★ */
+            /* 避開 iPhone 瀏海/動態島 */
             padding-top: env(safe-area-inset-top);
             height: calc(60px + env(safe-area-inset-top));
         }
 
-        /* 
-           ★ 強制重置 header 內所有連結的樣式 
-        */
+        /* 強制重置 header 內所有連結的樣式 */
         .site-header a {
             text-decoration: none !important;
             border: none !important;
         }
 
-        /* Logo 區域 */
+        /* Logo 區域 (修改版) */
         .header-logo {
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #333 !important;
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex-shrink: 0; 
+            text-decoration: none;
+            height: 100%; /* 讓連結高度填滿 header */
+            flex-shrink: 0;
         }
-        .header-logo span { color: #4CAF50 !important; }
+
+        /* Logo 圖片樣式 */
+        .header-logo img {
+            height: 40px; /* 設定圖片高度，保留 header 上下空間 */
+            width: auto;  /* 寬度自動調整以維持比例 */
+            object-fit: contain; /* 確保圖片不會變形 */
+            display: block;
+        }
 
         /* 電腦版導航選單 */
         .desktop-nav {
@@ -92,7 +94,7 @@
         /* 下拉選單容器 */
         .dropdown {
             position: relative;
-            height: 100%; /* 跟隨 header 高度 */
+            height: 100%;
             display: flex;
             align-items: center;
         }
@@ -101,7 +103,7 @@
         .dropdown-content {
             display: none;
             position: absolute;
-            top: 100%; /* 自動接在容器下方 */
+            top: 100%;
             right: -10px;
             background-color: #fff;
             min-width: 180px;
@@ -144,7 +146,7 @@
         .mobile-nav-overlay {
             display: none;
             position: fixed; 
-            top: 60px; /* 這裡需要配合 Header 高度 */
+            top: 60px;
             left: 0;
             width: 100%;
             background: white;
@@ -186,10 +188,9 @@
 <body>
 
     <header class="site-header">
-        <!-- 左側 Logo -->
+        <!-- 左側 Logo (已修改為圖片) -->
         <a href="#" class="header-logo">
-            <span class="material-icons" style="font-size: 28px;">school</span>
-            Learn Studio
+            <img src="https://learn-kits.github.io/image/learnkits_logo.png" alt="Learn Kits Logo">
         </a>
 
         <!-- 右側導航 (電腦/平板) -->
@@ -221,9 +222,6 @@
             <a href="https://learn-kits.github.io/about">關於作者</a>
         </div>
     </header>
-
-    <!-- ★★★ 修改重點 3：移除 .header-spacer ★★★ -->
-    <!-- 因為 sticky 元素本身就會佔據空間，不需要額外墊高 -->
 
     <script>
         function toggleMobileMenu() {
