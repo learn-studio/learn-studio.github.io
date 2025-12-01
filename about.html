@@ -104,7 +104,15 @@
         .job-title { font-size: 0.9em; color: var(--text-sub); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
         .card-content p { color: var(--text-sub); font-size: 15px; line-height: 1.6; font-weight: 400; margin: 0 0 24px 0; text-align: left; }
 
-        .footer-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #F1F5F9; padding-top: 20px; }
+        /* 修改處：移除了 border-top 和 padding-top */
+        .footer-action { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            /* border-top: 1px solid #F1F5F9; (已移除) */
+            /* padding-top: 20px; (已移除) */
+        }
+        
         .contact-btn {
             background: var(--primary-gradient); color: white; padding: 10px 20px; border-radius: 12px;
             text-decoration: none; font-size: 14px; font-weight: 600; display: inline-flex;
@@ -116,7 +124,7 @@
         .copy-hint { color: #10B981; font-size: 12px; font-weight: 500; opacity: 0; transition: 0.3s; }
         .copy-hint.show { opacity: 1; }
 
-        /* --- ★ RWD 手機版設定 (字體微調版) ★ --- */
+        /* --- ★ RWD 手機版設定 ★ --- */
         @media (max-width: 768px) {
             .info-card { 
                 bottom: 30px; 
@@ -126,33 +134,16 @@
                 padding: 24px; 
             }
 
-            /* --- 手機字體調整 --- */
-            .name-title { 
-                font-size: 18px; /* 標題縮小 */
-            }
-            
-            .job-title {
-                font-size: 12px; /* 職稱縮小 */
-                margin-top: 2px;
-            }
-
-            .card-content p { 
-                font-size: 13px; /* 內文縮小 */
-                line-height: 1.6; /* 維持行距 */
-                margin-bottom: 20px; 
-            }
-
-            .contact-btn {
-                font-size: 13px; /* 按鈕字也縮小一點 */
-                padding: 8px 16px;
-            }
+            .name-title { font-size: 18px; }
+            .job-title { font-size: 12px; margin-top: 2px; }
+            .card-content p { font-size: 13px; line-height: 1.6; margin-bottom: 20px; }
+            .contact-btn { font-size: 13px; padding: 8px 16px; }
             .contact-btn .material-icons { font-size: 16px; }
-            /* ------------------ */
             
             #tetrisCanvas { 
                 width: 100%;
                 height: 65vh; 
-                border-bottom: 2px solid rgba(79, 70, 229, 0.1); 
+                /* 修改處：移除了這裡的 border-bottom，改用 JS 畫 */
             }
         }
     </style>
@@ -167,7 +158,6 @@
         <div class="light-blob blob-3"></div>
     </div>
 
-    <!-- 畫布：加上觸控監聽 -->
     <canvas id="tetrisCanvas"></canvas>
 
     <div class="info-card">
@@ -270,6 +260,20 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // --- 修改處：在 Canvas 內部畫地板線 ---
+            // 只有手機版需要這條線
+            if (window.innerWidth < 768) {
+                const floorY = rows * BLOCK_SIZE; // 計算網格的最底部
+                ctx.beginPath();
+                ctx.moveTo(0, floorY);
+                ctx.lineTo(canvas.width, floorY);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(79, 70, 229, 0.1)'; // 淡紫色線條
+                ctx.stroke();
+            }
+            // -------------------------------------
+
             drawMatrix(board, {x: 0, y: 0});
             drawMatrix(player.matrix, player.pos);
         }
