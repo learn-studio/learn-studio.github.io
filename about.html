@@ -144,8 +144,8 @@
             
             #tetrisCanvas { 
                 width: 100%;
-                /* ★ 修改重點 3：高度改為 60vh，留更多空間給卡片 */
-                height: 60vh; 
+                /* ★ 修改處：移除原本寫死的 height，改為 auto 或 100% 讓 JS 控制 */
+                height: 100%;
             }
         }
     </style>
@@ -231,10 +231,33 @@
         let player = { pos: {x: 0, y: 0}, matrix: null, color: 0 };
 
         function resize() {
+            // 1. 先重置高度，確保讀取數值正確
+            canvas.style.height = '100%'; 
+
+            // 2. 手機版專屬計算：動態決定地板高度
+            if (window.innerWidth < 768) {
+                const card = document.querySelector('.info-card');
+                if (card) {
+                    // 取得卡片距離視窗頂部的位置 (Card Top)
+                    const cardTop = card.getBoundingClientRect().top;
+                    
+                    // 設定畫布高度 = 卡片頂部位置 - 24px (留白)
+                    // 這樣地板線就會剛好畫在卡片上方 24px 處
+                    const targetHeight = cardTop - 24;
+                    
+                    canvas.style.height = targetHeight + 'px';
+                }
+            }
+
+            // 3. 設定 Canvas 解析度 (這部分維持原樣)
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
+            
+            // 4. 計算網格 (維持原樣)
             cols = Math.floor(canvas.width / BLOCK_SIZE);
             rows = Math.floor(canvas.height / BLOCK_SIZE);
+            
+            // 重建遊戲盤面
             createBoard();
         }
 
