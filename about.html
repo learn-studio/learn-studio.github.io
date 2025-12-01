@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>關於作者 | Betty C.</title>
 
     <link rel="icon" type="image/png" href="https://learn-kits.github.io/image/learnkits_favicon.png">
@@ -16,13 +16,12 @@
     <style>
         /* --- 變數設定 --- */
         :root {
-            --bg-body: #F8FAFC; /* 極淡的冷灰白底色 */
+            --bg-body: #F8FAFC;
             --bg-card: #FFFFFF;
             --text-main: #1E293B;
             --text-sub: #64748B;
             --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            /* 加深一點陰影，因為背景變淺了，卡片需要對比 */
-            --shadow-card: 0 20px 60px -10px rgba(71, 85, 105, 0.15); 
+            --shadow-card: 0 20px 60px -10px rgba(71, 85, 105, 0.15);
         }
 
         body {
@@ -33,65 +32,34 @@
             width: 100vw;
             overflow: hidden;
             position: relative;
+            /* 禁止手機上的雙擊縮放和長按選取 */
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        /* --- 1. 背景呼吸光點層 (Ambient Light) --- */
+        /* --- 1. 背景呼吸光點層 --- */
         .ambient-layer {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 0;
-            pointer-events: none; /* 讓滑鼠穿透，不影響點擊 */
+            pointer-events: none;
             overflow: hidden;
         }
 
-        /* 光點共用設定 */
         .light-blob {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px); /* 強力模糊，製造光暈感 */
-            opacity: 0.7;
+            filter: blur(80px);
+            opacity: 0.6;
             animation: breathe 10s infinite ease-in-out alternate;
         }
 
-        /* 光點 A: 淡紫色 (左上) */
-        .blob-1 {
-            top: -10%;
-            left: -10%;
-            width: 50vw;
-            height: 50vw;
-            background: #E0E7FF; /* 很淡的紫藍色 */
-            animation-duration: 15s;
-        }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #E0E7FF; animation-duration: 15s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #F3E8FF; animation-duration: 12s; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: #EFF6FF; opacity: 0.5; animation: floatMove 20s infinite ease-in-out; }
 
-        /* 光點 B: 淡粉/膚色 (右下) */
-        .blob-2 {
-            bottom: -10%;
-            right: -10%;
-            width: 60vw;
-            height: 60vw;
-            background: #F3E8FF; /* 很淡的粉紫色 */
-            animation-duration: 12s;
-            animation-delay: -5s;
-        }
-
-        /* 光點 C: 輔助亮點 (游動) */
-        .blob-3 {
-            top: 40%;
-            left: 40%;
-            width: 30vw;
-            height: 30vw;
-            background: #EFF6FF; /* 幾乎白色的藍 */
-            opacity: 0.6;
-            animation: floatMove 20s infinite ease-in-out;
-        }
-
-        /* 動畫：呼吸 (變大變小) */
-        @keyframes breathe {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-
-        /* 動畫：游動 (位移 + 旋轉) */
+        @keyframes breathe { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
         @keyframes floatMove {
             0% { transform: translate(0, 0) rotate(0deg); }
             33% { transform: translate(100px, -50px) rotate(120deg); }
@@ -99,150 +67,104 @@
             100% { transform: translate(0, 0) rotate(360deg); }
         }
 
+        /* --- 2. 俄羅斯方塊畫布層 --- */
+        #tetrisCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            /* 電腦版：左半邊 */
+            width: 50%; 
+            height: 100%;
+            z-index: 1;
+            opacity: 0.9;
+        }
 
-        /* --- 2. 右下角資訊卡片 --- */
+        /* --- 3. 右下角資訊卡片 --- */
         .info-card {
             position: absolute;
             bottom: 64px; 
             right: 64px;
-            
             width: 380px;
             background-color: var(--bg-card);
             border-radius: 24px;
             box-shadow: var(--shadow-card);
-            
             padding: 32px;
             box-sizing: border-box;
-            z-index: 10;
+            z-index: 10; /* 比 Canvas 高，確保不被蓋住 */
             
-            /* 進場動畫 */
             opacity: 0;
             transform: translateY(30px);
             animation: floatIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             animation-delay: 0.3s;
+            pointer-events: auto; /* 確保卡片可以點擊 */
         }
 
-        @keyframes floatIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes floatIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 3. 內文排版 --- */
-        .card-header {
-            margin-bottom: 16px;
-        }
+        /* --- 卡片內容 --- */
+        .card-header { margin-bottom: 16px; }
+        .name-title { font-size: 1.8em; font-weight: 700; color: var(--text-main); margin: 0; line-height: 1.2; letter-spacing: -0.5px; }
+        .job-title { font-size: 0.9em; color: var(--text-sub); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .card-content p { color: var(--text-sub); font-size: 15px; line-height: 1.6; font-weight: 400; margin: 0 0 24px 0; text-align: left; }
 
-        .name-title {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 0;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-        }
-
-        .job-title {
-            font-size: 0.9em;
-            color: var(--text-sub);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 4px;
-        }
-
-        .card-content p {
-            color: var(--text-sub);
-            font-size: 15px;
-            line-height: 1.6;
-            font-weight: 400;
-            margin: 0 0 24px 0;
-            text-align: left;
-        }
-
-        /* --- 4. 按鈕 --- */
-        .footer-action {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 1px solid #F1F5F9;
-            padding-top: 20px;
-        }
-
+        .footer-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #F1F5F9; padding-top: 20px; }
         .contact-btn {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: var(--primary-gradient); color: white; padding: 10px 20px; border-radius: 12px;
+            text-decoration: none; font-size: 14px; font-weight: 600; display: inline-flex;
+            align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
-        
-        .contact-btn:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
-        }
-        
+        .contact-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); }
         .contact-btn .material-icons { font-size: 18px; }
-
-        .copy-hint { 
-            color: #10B981; font-size: 12px; font-weight: 500;
-            opacity: 0; transition: 0.3s; 
-        }
+        .copy-hint { color: #10B981; font-size: 12px; font-weight: 500; opacity: 0; transition: 0.3s; }
         .copy-hint.show { opacity: 1; }
 
-        /* --- RWD 手機版 --- */
+        /* --- RWD 手機版設定 --- */
         @media (max-width: 768px) {
-            .info-card {
+            .info-card { 
                 bottom: 30px; 
                 right: 20px; 
-                left: 20px;
-                width: auto;
-                padding: 24px;
-                border-radius: 20px;
+                left: 20px; 
+                width: auto; 
+                padding: 24px; 
             }
-            .name-title { font-size: 1.5em; }
-            .card-content p { font-size: 14px; margin-bottom: 20px; }
             
-            /* 手機版調整光點大小，避免佔據太多運算資源 */
-            .light-blob { filter: blur(60px); }
-            .blob-1 { width: 80vw; height: 80vw; }
-            .blob-2 { width: 90vw; height: 90vw; }
+            /* ★ 手機版方塊設定 ★ */
+            #tetrisCanvas { 
+                width: 100%; /* 手機版佔滿寬度 */
+                
+                /* ★ 關鍵：高度設為 65vh，讓地板停在卡片上方 */
+                height: 65vh; 
+                
+                /* 加一條淡淡的底線，讓使用者知道這裡是邊界 */
+                border-bottom: 2px solid rgba(79, 70, 229, 0.1); 
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header 容器 -->
     <div id="header-container"></div>
     
-    <!-- 1. 背景呼吸光點層 -->
     <div class="ambient-layer">
         <div class="light-blob blob-1"></div>
         <div class="light-blob blob-2"></div>
         <div class="light-blob blob-3"></div>
     </div>
 
-    <!-- 2. 右下角資訊卡片 -->
+    <!-- 畫布：加上觸控監聽 -->
+    <canvas id="tetrisCanvas"></canvas>
+
     <div class="info-card">
-        
         <div class="card-header">
             <h1 class="name-title">Betty C.</h1>
             <div class="job-title">Product Designer</div>
         </div>
-
         <div class="card-content">
             <p>
                 在邏輯與創意之間尋找平衡。<br>
                 專注於使用者體驗與介面設計，享受從混亂中梳理出秩序的過程。
             </p>
         </div>
-        
         <div class="footer-action">
             <div class="contact-btn" onclick="copyEmail()">
                 <span class="material-icons">mail</span>
@@ -261,22 +183,259 @@
             });
         }
 
-        // --- 載入 Header ---
         fetch('header.html')
-            .then(r => {
-                if(!r.ok) throw new Error("Header not found");
-                return r.text();
-            })
+            .then(r => r.ok ? r.text() : Promise.reject())
             .then(d => {
                 document.getElementById('header-container').innerHTML = d;
-                window.toggleMobileMenu = function() {
-                    const m = document.getElementById('mobileNav');
-                    if(m) m.classList.toggle('open');
-                };
+                window.toggleMobileMenu = () => document.getElementById('mobileNav')?.classList.toggle('open');
             })
-            .catch(e => {
-                console.warn("Header loading failed:", e);
+            .catch(() => console.log('Header load skipped'));
+
+        /* --- 俄羅斯方塊遊戲邏輯 --- */
+        const canvas = document.getElementById('tetrisCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 放大一點方塊，手機上比較好按好看
+        const BLOCK_SIZE = window.innerWidth < 768 ? 35 : 30;
+        
+        const COLORS = [
+            null,
+            '#4F46E5', '#6366F1', '#818CF8', '#A78BFA', '#C084FC', '#94A3B8', '#64748B'
+        ];
+
+        const PIECES = 'ILJOTSZ';
+        const SHAPES = {
+            'I': [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+            'L': [[0,0,2],[2,2,2],[0,0,0]],
+            'J': [[3,0,0],[3,3,3],[0,0,0]],
+            'O': [[4,4],[4,4]],
+            'Z': [[5,5,0],[0,5,5],[0,0,0]],
+            'S': [[0,6,6],[6,6,0],[0,0,0]],
+            'T': [[0,7,0],[7,7,7],[0,0,0]]
+        };
+
+        let board = [];
+        let cols = 0;
+        let rows = 0;
+        let dropCounter = 0;
+        let dropInterval = 1000; // 下落速度 (1秒)
+        let lastTime = 0;
+        let player = { pos: {x: 0, y: 0}, matrix: null, color: 0 };
+
+        // --- 核心遊戲函數 ---
+
+        function resize() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            cols = Math.floor(canvas.width / BLOCK_SIZE);
+            rows = Math.floor(canvas.height / BLOCK_SIZE);
+            createBoard();
+        }
+
+        function createBoard() {
+            board = Array.from({length: rows}, () => Array(cols).fill(0));
+        }
+
+        function createPiece(type) {
+            const matrix = SHAPES[type];
+            const colorIndex = (PIECES.indexOf(type) % (COLORS.length - 1)) + 1;
+            return matrix.map(row => row.map(val => val ? colorIndex : 0));
+        }
+
+        function drawMatrix(matrix, offset) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        ctx.fillStyle = COLORS[value];
+                        // 圓角矩形效果
+                        ctx.fillRect((x + offset.x) * BLOCK_SIZE + 1, (y + offset.y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                        // 亮面質感
+                        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                        ctx.fillRect((x + offset.x) * BLOCK_SIZE + 1, (y + offset.y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, 4);
+                    }
+                });
             });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMatrix(board, {x: 0, y: 0});
+            drawMatrix(player.matrix, player.pos);
+        }
+
+        function merge(board, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        if(board[y + player.pos.y] && board[y + player.pos.y][x + player.pos.x] !== undefined) {
+                            board[y + player.pos.y][x + player.pos.x] = value;
+                        }
+                    }
+                });
+            });
+        }
+
+        function collide(board, player) {
+            const m = player.matrix;
+            const o = player.pos;
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 &&
+                       (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // 消除滿行的邏輯
+        function arenaSweep() {
+            outer: for (let y = board.length - 1; y > 0; --y) {
+                for (let x = 0; x < board[y].length; ++x) {
+                    if (board[y][x] === 0) {
+                        continue outer;
+                    }
+                }
+                const row = board.splice(y, 1)[0].fill(0);
+                board.unshift(row);
+                ++y;
+            }
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+                }
+            }
+            if (dir > 0) matrix.forEach(row => row.reverse());
+            else matrix.reverse();
+        }
+
+        function playerReset() {
+            const pieces = PIECES;
+            player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+            player.pos.y = 0;
+            player.pos.x = (cols / 2 | 0) - (player.matrix[0].length / 2 | 0);
+
+            if (collide(board, player)) {
+                board.forEach(row => row.fill(0)); // Game Over 清空
+            }
+        }
+
+        function playerDrop() {
+            player.pos.y++;
+            if (collide(board, player)) {
+                player.pos.y--;
+                merge(board, player);
+                arenaSweep(); // 檢查消行
+                playerReset();
+            }
+            dropCounter = 0;
+        }
+
+        function playerMove(dir) {
+            player.pos.x += dir;
+            if (collide(board, player)) {
+                player.pos.x -= dir;
+            }
+        }
+
+        function playerRotate(dir) {
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, dir);
+            while (collide(board, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -dir);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+        }
+
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) {
+                playerDrop();
+            }
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        // --- 控制邏輯 (鍵盤 + 手機觸控) ---
+
+        // 1. 鍵盤控制
+        document.addEventListener('keydown', event => {
+            if (event.keyCode === 37) playerMove(-1); // 左
+            else if (event.keyCode === 39) playerMove(1); // 右
+            else if (event.keyCode === 40) playerDrop(); // 下 (加速)
+            else if (event.keyCode === 38) playerRotate(1); // 上 (旋轉)
+        });
+
+        // 2. 手機觸控控制 (隱形按鍵)
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isTouching = false;
+
+        // 增加一個防誤觸機制：只有點在 Canvas 上才算
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault(); // 防止滾動
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isTouching = true;
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', e => {
+            if (!isTouching) return;
+            e.preventDefault();
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            
+            // 判斷是點擊還是滑動
+            if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
+                // --- 點擊 (Tap) 邏輯 ---
+                const screenWidth = window.innerWidth;
+                const tapX = touchEndX;
+                const tapY = touchEndY;
+
+                // 點擊上半部：旋轉
+                if (tapY < window.innerHeight * 0.4) {
+                    playerRotate(1);
+                } 
+                // 點擊左半部：左移
+                else if (tapX < screenWidth / 2) {
+                    playerMove(-1);
+                } 
+                // 點擊右半部：右移
+                else {
+                    playerMove(1);
+                }
+            } else {
+                // --- 滑動 (Swipe) 邏輯 ---
+                // 下滑加速
+                if (diffY > 50 && Math.abs(diffY) > Math.abs(diffX)) {
+                    playerDrop();
+                }
+            }
+            isTouching = false;
+        }, {passive: false});
+
+        // 初始化
+        window.addEventListener('resize', resize);
+        resize();
+        playerReset();
+        update();
+
     </script>
 </body>
 </html>
