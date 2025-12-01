@@ -7,20 +7,20 @@
 
     <link rel="icon" type="image/png" href="https://learn-kits.github.io/image/learnkits_favicon.png">
     
-    <!-- 1. 引入與參考代碼相同的字體 Outfit -->
+    <!-- 引入字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
-        /* --- 提取參考代碼的變數 --- */
+        /* --- 變數設定 --- */
         :root {
             --bg-card: #FFFFFF;
-            --text-main: #1E293B; /* 深藍灰 */
-            --text-sub: #64748B;  /* 淺灰 */
-            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); /* 漂亮的漸層 */
-            --shadow-card: 0 20px 40px -5px rgba(30, 41, 59, 0.15); /* 稍微加深一點陰影讓它在影片上更清楚 */
+            --text-main: #1E293B;
+            --text-sub: #64748B;
+            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            --shadow-card: 0 20px 40px -5px rgba(30, 41, 59, 0.15);
         }
 
         body {
@@ -45,28 +45,28 @@
         .video-background video {
             width: 100%; height: 100%;
             object-fit: cover;
-            /* 建議稍微調暗影片，讓白色卡片更凸顯 */
-            filter: brightness(0.8); 
+            
+            /* ★★★ 修改重點在此 ★★★ */
+            /* brightness(0.7): 讓影片變暗，確保白字看得清楚 */
+            /* grayscale(100%): 將影片轉為純黑白 */
+            /* contrast(1.1): 稍微加一點對比，讓黑白畫面更有層次感 */
+            filter: brightness(0.7) grayscale(100%) contrast(1.1); 
         }
 
-        /* --- 2. 右下角資訊卡片 (風格大更新) --- */
+        /* --- 2. 右下角資訊卡片 --- */
         .info-card {
             position: absolute;
             bottom: 64px; 
             right: 64px;
             
-            width: 380px; /* 稍微寬一點點，視覺更舒適 */
-            
-            /* ★ 套用參考代碼的卡片樣式 */
+            width: 380px;
             background-color: var(--bg-card);
-            border-radius: 24px; /* 大圓角 */
+            border-radius: 24px;
             box-shadow: var(--shadow-card);
             
             padding: 32px;
             box-sizing: border-box;
             z-index: 10;
-            
-            /* 移除之前的折角 clip-path，改用現代圓潤風 */
             
             /* 進場動畫 */
             opacity: 0;
@@ -103,28 +103,26 @@
         }
 
         .card-content p {
-            color: var(--text-sub); /* 使用次要文字顏色 */
-            font-size: 15px;        /* 字體大小適中 */
-            line-height: 1.6;       /* 舒適的閱讀行高 */
+            color: var(--text-sub);
+            font-size: 15px;
+            line-height: 1.6;
             font-weight: 400;
             margin: 0 0 24px 0;
             text-align: left;
         }
 
-        /* --- 4. 按鈕 (套用漸層) --- */
+        /* --- 4. 按鈕 --- */
         .footer-action {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-top: 1px solid #F1F5F9; /* 極淡的分隔線 */
+            border-top: 1px solid #F1F5F9;
             padding-top: 20px;
         }
 
         .contact-btn {
-            /* ★ 套用參考代碼的漸層背景 */
             background: var(--primary-gradient);
             color: white;
-            
             padding: 10px 20px;
             border-radius: 12px;
             text-decoration: none;
@@ -135,7 +133,7 @@
             gap: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); /* 漸層色系的陰影 */
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
         
         .contact-btn:hover { 
@@ -174,8 +172,8 @@
     <!-- 1. 背景影片區 -->
     <div class="video-background">
         <!-- 
-           ★ 請在此替換 src 連結 ★ 
-           例如: src="images/my_video.mp4"
+           請確認檔案存在且路徑正確
+           如果還是黑屏，請參考先前的建議檢查影片編碼或嘗試線上影片
         -->
         <video autoplay muted loop playsinline>
             <source src="image/ocean.mp4" type="video/mp4">
@@ -183,7 +181,7 @@
         </video>
     </div>
 
-    <!-- 2. 右下角資訊卡片 (白色圓角風格) -->
+    <!-- 2. 右下角資訊卡片 -->
     <div class="info-card">
         
         <div class="card-header">
@@ -216,23 +214,22 @@
             });
         }
 
-            // --- 載入 Header (避免本機執行錯誤) ---
-    fetch('header.html')
-        .then(r => {
-            if(!r.ok) throw new Error("Header not found");
-            return r.text();
-        })
-        .then(d => {
-            document.getElementById('header-container').innerHTML = d;
-            window.toggleMobileMenu = function() {
-                const m = document.getElementById('mobileNav');
-                if(m) m.classList.toggle('open');
-            };
-        })
-        .catch(e => {
-            console.warn("Header loading failed (expected if running locally without server):", e);
-        });
-        
+        // --- 載入 Header ---
+        fetch('header.html')
+            .then(r => {
+                if(!r.ok) throw new Error("Header not found");
+                return r.text();
+            })
+            .then(d => {
+                document.getElementById('header-container').innerHTML = d;
+                window.toggleMobileMenu = function() {
+                    const m = document.getElementById('mobileNav');
+                    if(m) m.classList.toggle('open');
+                };
+            })
+            .catch(e => {
+                console.warn("Header loading failed:", e);
+            });
     </script>
 </body>
 </html>
