@@ -6,163 +6,131 @@
     <title>Site Header</title>
     <!-- 引入 Google Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- 引入英文字體 Outfit (用於 Logo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&display=swap" rel="stylesheet">
     
     <style>
         /* --- 基礎設定 --- */
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
+        body { margin: 0; padding: 0; width: 100%; font-family: 'Segoe UI', sans-serif; }
 
         /* --- Header CSS --- */
         .site-header {
-            /* 黏性定位 */
             position: sticky; 
-            top: 0;
-            left: 0;
-            border-bottom: 1px solid #eaeaea; 
+            top: 0; left: 0;
             width: 100%;
             height: 60px;
             
             background-color: #ffffff;
             
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-sizing: border-box;
+            /* ★ 修改 1：去除陰影，改為 1px 藍色底線 ★ */
+            border-bottom: 1px solid #0056D2; 
+            box-shadow: none;
             
-            /* 確保層級最高 */
-            z-index: 1001; 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; box-sizing: border-box;
+            z-index: 1001; flex-shrink: 0; 
             
-            /* 防止被壓縮 */
-            flex-shrink: 0; 
-            
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-            /* 避開 iPhone 瀏海/動態島 */
             padding-top: env(safe-area-inset-top);
             height: calc(60px + env(safe-area-inset-top));
         }
 
-        /* 強制重置 header 內所有連結的樣式 */
-        .site-header a {
-            text-decoration: none !important;
-            border: none !important;
-        }
+        .site-header a { text-decoration: none !important; }
 
-        /* Logo 區域 */
+        /* ★ 修改 2：Logo 改為藍底白字色塊 ★ */
         .header-logo {
             display: flex;
             align-items: center;
+            justify-content: center;
             text-decoration: none;
-            height: 100%; /* 讓連結高度填滿 header */
-            flex-shrink: 0;
-        }
-
-        /* Logo 圖片樣式 (預設電腦版) */
-        .header-logo img {
-            height: 40px; /* 電腦版維持 40px */
-            width: auto;  
-            object-fit: contain;
-            display: block;
-            transition: height 0.2s; /* 讓大小切換時有滑順效果 */
+            
+            /* 色塊樣式 */
+            background-color: #0056D2;
+            color: #ffffff !important;
+            
+            /* 字體設定 */
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            
+            /* 尺寸設定 */
+            height: 36px;
+            padding: 0 12px;
+            border-radius: 4px; /* 微圓角 */
         }
 
         /* 電腦版導航選單 */
-        .desktop-nav {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
+        .desktop-nav { display: flex; align-items: center; gap: 30px; }
 
         .nav-item {
             color: #333 !important;
-            font-weight: 400;
+            font-weight: 500;
             font-size: 15px;
             cursor: pointer;
             position: relative;
             transition: color 0.2s;
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
         }
 
-        .nav-item:hover { 
-            color: #534bdf !important;
-        }
+        .nav-item:hover { color: #0056D2 !important; } /* Hover 改為藍色 */
 
-        /* 下拉選單容器 */
-        .dropdown {
-            position: relative;
-            height: 100%;
-            display: flex;
-            align-items: center;
-        }
-
-        /* 下拉選單內容 */
+        /* 下拉選單 */
+        .dropdown { position: relative; height: 100%; display: flex; align-items: center; }
+        
         .dropdown-content {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: -10px;
-            background-color: #fff;
-            min-width: 180px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-            border-radius: 0 0 8px 8px;
-            overflow: hidden;
-            z-index: 1002;
+            display: none; position: absolute; top: 100%; right: -10px;
+            background-color: #fff; min-width: 180px;
+            /* 下拉選單改為藍色邊框風格 */
+            border: 1px solid #0056D2;
+            border-top: none;
+            box-shadow: 4px 4px 0 rgba(0, 86, 210, 0.1);
+            border-radius: 0 0 4px 4px;
+            overflow: hidden; z-index: 1002;
         }
 
-        .dropdown:hover .dropdown-content {
-            display: block;
-            animation: fadeIn 0.2s ease-in-out;
-        }
+        .dropdown:hover .dropdown-content { display: block; animation: fadeIn 0.2s ease-in-out; }
 
         .dropdown-content a {
-            color: #333 !important;
-            padding: 12px 20px;
-            display: block;
-            font-size: 15px;
-            transition: background 0.1s, color 0.1s;
-            text-align: left;
+            color: #333 !important; padding: 12px 20px; display: block; font-size: 15px;
+            transition: background 0.1s, color 0.1s; text-align: left;
         }
-        .dropdown-content a:hover { 
-            background-color: #f5f5f5; 
-            color: #534bdf !important; 
-        }
+        .dropdown-content a:hover { background-color: #F0F4F8; color: #0056D2 !important; }
 
-        /* 手機版 Menu 按鈕 */
+        /* ★ 修改 3：手機版 Menu 按鈕樣式 ★ */
         .mobile-menu-btn {
-            display: none; /* 電腦版隱藏 */
-            background: none;
-            border: none;
-            font-size: 28px;
-            color: #333;
+            display: none; 
             cursor: pointer;
-            padding: 5px;
             
-            /* ★★★ 新增以下設定來強制置中 ★★★ */
+            /* 尺寸與排版 */
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            margin-right: 0; /* 重置邊距 */
+            
+            /* Flex 置中 */
             align-items: center;
             justify-content: center;
-            line-height: 0; 
-            margin-right: -5px; /* 微調右邊距，讓視覺上更靠右對齊 */
+            
+            /* 風格設定：白底、藍框、藍字 */
+            background-color: #ffffff;
+            border: 1px solid #0056D2;
+            color: #0056D2;
+            border-radius: 4px;
+            
+            /* 移除預設樣式 */
+            outline: none;
+        }
+        
+        .mobile-menu-btn .material-icons {
+            font-size: 24px; /* Icon 大小適中 */
         }
 
-        /* 手機版導航 */
+        /* 手機版導航展開 */
         .mobile-nav-overlay {
-            display: none;
-            position: fixed; 
-            top: 60px;
-            left: 0;
-            width: 100%;
-            background: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            flex-direction: column;
-            border-top: 1px solid #eee;
-            z-index: 1000;
-            
-            /* 手機版選單也要避開狀態列偏移 */
+            display: none; position: fixed; top: 60px; left: 0; width: 100%;
+            background: white; 
+            border-bottom: 1px solid #0056D2; /* 底部藍線 */
+            flex-direction: column; z-index: 1000;
             top: calc(60px + env(safe-area-inset-top));
         }
         
@@ -170,32 +138,16 @@
             padding: 15px 20px;
             border-bottom: 1px solid #f0f0f0;
             text-decoration: none !important;
-            color: #333 !important;
-            font-size: 16px;
-            display: block;
+            color: #333 !important; font-size: 16px; display: block;
         }
         
-        .mobile-sub-item {
-            background-color: #fafafa;
-            padding-left: 40px !important;
-            color: #666 !important;
-            font-size: 15px !important;
-        }
+        .mobile-sub-item { background-color: #F8F9FA; padding-left: 40px !important; color: #555 !important; font-size: 15px !important; }
 
-        /* RWD (手機版設定) */
-/* RWD (手機版設定) */
+        /* RWD */
         @media (max-width: 768px) {
             .desktop-nav { display: none; }
-            
-            /* ★★★ 修改處：改成 flex 才能吃到上面的 align-items ★★★ */
-            .mobile-menu-btn { display: flex; } 
-            
+            .mobile-menu-btn { display: flex; } /* 顯示按鈕 */
             .mobile-nav-overlay.open { display: flex; }
-
-            /* ★★★ 修改處：Logo 放大 (原本 30px -> 改為 33px) ★★★ */
-            .header-logo img {
-                height: 33px; 
-            }
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
@@ -204,14 +156,11 @@
 <body>
 
     <header class="site-header">
-        <!-- 左側 Logo (已修改為圖片) -->
-        <a href="#" class="header-logo">
-            <img src="https://learn-kits.github.io/image/learnkits_logo.png" alt="Learn Kits Logo">
-        </a>
+        <!-- 左側 Logo：改為 LearnKits 文字色塊 -->
+        <a href="#" class="header-logo">LearnKits</a>
 
         <!-- 右側導航 (電腦/平板) -->
         <nav class="desktop-nav">
-            <!-- 英文資源 (下拉選單) -->
             <div class="dropdown">
                 <span class="nav-item">
                     英文資源 
@@ -221,19 +170,17 @@
                     <a href="https://learn-kits.github.io">7000單字圖卡</a>
                 </div>
             </div>
-
-            <!-- 關於作者 (獨立連結) -->
             <a href="https://learn-kits.github.io/about" class="nav-item">關於作者</a>
         </nav>
 
-        <!-- 右側漢堡選單 (手機) -->
+        <!-- 右側漢堡選單 (手機)：改為藍框方塊按鈕 -->
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
             <span class="material-icons">menu</span>
         </button>
 
         <!-- 手機版展開選單 -->
         <div class="mobile-nav-overlay" id="mobileNav">
-            <div>英文資源</div>
+            <div style="color: #0056D2; font-weight: bold;">英文資源</div>
             <a href="https://learn-kits.github.io" class="mobile-sub-item">7000單字圖卡</a>
             <a href="https://learn-kits.github.io/about">關於作者</a>
         </div>
