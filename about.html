@@ -74,21 +74,14 @@
             width: 50%; 
             height: 100%;
             z-index: 1;
-            
-            /* ★ 修改處：預設全透明，等待 JS 啟動後淡入 */
             opacity: 0; 
-            transition: opacity 1.5s ease; /* 優雅的淡入效果 */
+            transition: opacity 1.5s ease;
         }
 
-        /* --- 3. 右下角資訊卡片 --- */
+        /* --- 3. 右下角資訊卡片 (電腦版預設) --- */
         .info-card {
-            /* ★ 修改 1：改為 fixed，強制鎖定在螢幕視窗上 */
-            position: fixed; 
-            
-            /* ★ 修改 2：加入安全區域計算，避免被 iPhone 底部橫條擋住 */
-            bottom: 30px; /* 預設值 */
-            bottom: calc(30px + env(safe-area-inset-bottom)); 
-            
+            position: fixed; /* 強制固定 */
+            bottom: 30px; 
             right: 64px;
             width: 380px;
             background-color: var(--bg-card);
@@ -96,8 +89,6 @@
             box-shadow: var(--shadow-card);
             padding: 32px;
             box-sizing: border-box;
-            
-            /* 確保層級最高，浮在 Canvas 之上 */
             z-index: 100; 
             
             opacity: 0;
@@ -132,16 +123,19 @@
         .copy-hint { color: #10B981; font-size: 12px; font-weight: 500; opacity: 0; transition: 0.3s; }
         .copy-hint.show { opacity: 1; }
 
-        /* --- ★ RWD 手機版設定 ★ --- */
+        /* --- ★ RWD 手機版設定 (已修正語法錯誤) ★ --- */
         @media (max-width: 768px) {
-            ..info-card { 
-                /* 手機版同樣使用 fixed 與安全距離 */
-                bottom: 25px;
-                bottom: calc(25px + env(safe-area-inset-bottom));
+            /* 修正處：這裡原本是 ..info-card，現在改回 .info-card */
+            .info-card { 
+                position: fixed;
+                
+                /* 使用 calc 確保底部留有足夠空間 */
+                /* 40px 基本距離 + iPhone 底部橫條安全距離 */
+                bottom: calc(40px + env(safe-area-inset-bottom));
                 
                 right: 20px; 
                 left: 20px; 
-                width: auto; /* 自動填滿左右 */
+                width: auto; 
                 padding: 24px; 
             }
 
@@ -153,7 +147,6 @@
             
             #tetrisCanvas { 
                 width: 100%;
-                /* ★ 修改處：改回 100%，高度交給 JS 等動畫結束後計算 */
                 height: 100%;
             }
         }
@@ -234,24 +227,18 @@
         let cols = 0;
         let rows = 0;
         let dropCounter = 0;
-        // ★ 修改處：速度加快到 700ms (原本 1000ms)
         let dropInterval = 700; 
         let lastTime = 0;
         let player = { pos: {x: 0, y: 0}, matrix: null, color: 0 };
 
         function resize() {
-            // 1. 先重置高度
             canvas.style.height = '100%'; 
 
-            // 2. 手機版專屬：抓取卡片位置
             if (window.innerWidth < 768) {
                 const card = document.querySelector('.info-card');
                 if (card) {
-                    // 取得卡片頂端位置
                     const cardTop = card.getBoundingClientRect().top;
-                    // 設定高度 = 卡片頂端 - 24px
                     const targetHeight = cardTop - 24;
-                    
                     canvas.style.height = targetHeight + 'px';
                 }
             }
@@ -291,7 +278,6 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 手機版繪製地板線
             if (window.innerWidth < 768) {
                 const floorY = rows * BLOCK_SIZE;
                 ctx.beginPath();
@@ -472,21 +458,14 @@
             }
         }, {passive: false});
 
-        // --- ★ 修改重點：延遲啟動遊戲 ---
-        // 1. 等待 1200ms (0.3s delay + 0.8s animation + buffer)
+        // --- 延遲啟動遊戲，確保對齊 ---
         setTimeout(() => {
-            // 2. 這時候卡片已經就定位，執行 resize 抓取正確高度
             resize(); 
-            
-            // 3. 開始遊戲循環
             playerReset();
             update();
-            
-            // 4. 淡入 Canvas (opacity 0 -> 0.9)
             canvas.style.opacity = 0.9;
         }, 1200);
 
-        // 視窗改變大小時，重新計算
         window.addEventListener('resize', resize);
 
     </script>
