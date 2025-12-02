@@ -20,7 +20,14 @@
             width: 100%;
             height: 60px;
             
-            background-color: none;
+            background-color: transparent; 
+
+            /* 基本透明設定 */
+    background-color: rgba(255, 255, 255, 0.1); /* 微微的白色透明底，增加可讀性 */
+    
+    /* ★ 關鍵：毛玻璃特效 ★ */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* 支援 Safari */
             
             /* 底部 1px 藍色底線 */
             border-bottom: 1px solid #0056D2; 
