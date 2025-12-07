@@ -1,497 +1,373 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-    <title>好學包 | 英文 7000 單字</title>
+    <title>LearnKits App</title>
 
     <link rel="icon" type="image/png" href="https://learn-kits.github.io/image/learnkits_favicon.png">
-    <link rel="apple-touch-icon" href="https://learn-kits.github.io/image/learnkits_favicon.png">
-
+    
     <!-- 字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <style>
         :root {
-            /* --- 極簡瑞士風格配色 --- */
-            --bg-body: #F7F9FC;
-            --bg-card: #FFFFFF;
+            /* --- App Theme Colors --- */
+            --app-bg: #E3E5E8; /* 參考圖的深灰色背景 */
+            --card-bg: #FFFFFF;
             
-            /* 核心主色：寶藍色 */
-            --primary-blue: #0056D2;   
-            --primary-light-bg: rgba(0, 86, 210, 0.06);
+            /* 主色調：原本的藍色，但調整得更鮮豔一點 */
+            --primary: #0056D2; 
+            --accent-green: #94FD9E; /* 參考圖的螢光綠，用於強調 */
+            --accent-purple: #9D94D7; /* 參考圖的淡紫色 */
             
-            --text-main: #2F3136;
-            --text-sub: #888888;
+            --text-dark: #1A1A1A;
+            --text-grey: #888888;
             
-            --border-radius: 4px; /* 統一圓角 */
+            --radius-xl: 32px; /* App 等級的大圓角 */
+            --radius-md: 16px;
             
-            --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.04);
-            --shadow-float: 0 4px 12px rgba(0, 86, 210, 0.15);
-            
+            --shadow-app: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.12);
+
             --font-main: 'Noto Sans TC', sans-serif;
             --font-eng: 'Outfit', sans-serif;
         }
 
         body {
             font-family: var(--font-main);
-            background-color: var(--bg-body);
-            color: var(--text-main);
+            background-color: var(--app-bg);
             margin: 0; padding: 0;
-            height: 100vh;  
-            height: 100dvh; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            font-weight: 400;
-
-            /* 背景格紋 - 稍微淡化一點，讓沈浸感更好 */
-            background-image: 
-                linear-gradient(rgba(0, 86, 210, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 86, 210, 0.02) 1px, transparent 1px);
-            background-size: 20px 20px;
+            height: 100vh; height: 100dvh;
+            overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            
+            /* 背景裝飾圓點，增加層次感 */
+            background-image: radial-gradient(#d1d4d9 1px, transparent 1px);
+            background-size: 24px 24px;
         }
 
+        /* 隱藏 header-container 的背景，保持透明 */
         #header-container {
-            width: 100%;
-            flex-shrink: 0; 
-            z-index: 1001;  
-            position: relative; 
-            background-color: transparent;
-            border-bottom: none; 
+            position: absolute; top: 0; left: 0; width: 100%; z-index: 100;
+            background: transparent !important;
+            pointer-events: none; /* 讓點擊穿透 */
         }
+        /* 讓 Header 裡面的按鈕可以點 */
+        #header-container * { pointer-events: auto; }
 
-        /* --- Loading --- */
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-body);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9999; transition: opacity 0.5s;
-        }
-        .spinner {
-            width: 40px; height: 40px; 
-            border: 2px solid #ddd; 
-            border-top: 2px solid var(--primary-blue); 
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite; margin-bottom: 20px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* ★★★ 新增：遊戲化 HUD (狀態膠囊) ★★★ */
-        .hud-container {
-            flex-shrink: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            padding: 10px 0;
-            z-index: 100;
-        }
-
-        .status-pill {
+        /* --- HUD (頂部設定按鈕) --- */
+        .hud-trigger {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 44px; height: 44px;
             background: #fff;
-            border: 1px solid var(--primary-blue);
-            color: var(--primary-blue);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-family: var(--font-eng);
-            font-weight: 700;
-            font-size: 15px;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             cursor: pointer;
-            box-shadow: var(--shadow-float);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: transform 0.2s;
         }
+        .hud-trigger:active { transform: scale(0.95); }
 
-        .status-pill:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 86, 210, 0.25);
-        }
-
-        .status-pill:active {
-            transform: scale(0.95);
-        }
-
-        .status-pill .material-icons {
-            font-size: 18px;
-        }
-
-        /* ★★★ 新增：設定面板 (全螢幕 Overlay) ★★★ */
-        .config-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            z-index: 2000;
+        /* --- App 核心卡片容器 --- */
+        #app {
+            width: 100%;
+            height: 100%;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            perspective: 1000px;
+            padding: 20px; /* 四周留白 */
+            box-sizing: border-box;
+            position: relative;
         }
 
-        .config-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
+        .app-card-wrapper {
+            width: 100%;
+            height: 92%; /* 佔據大部分垂直高度 */
+            max-width: 400px; /* 手機寬度限制 */
+            max-height: 750px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .config-panel {
-            background: #fff;
-            width: 90%;
-            max-width: 500px;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            border: 1px solid #eee;
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-            max-height: 80vh;
-            overflow-y: auto;
+        .app-card-wrapper.flipped {
+            transform: rotateY(180deg);
         }
 
-        .config-overlay.open .config-panel {
-            transform: translateY(0);
+        /* --- 卡片正反面共用設定 --- */
+        .card-face {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-app);
+            overflow: hidden; /* 讓圖片不溢出圓角 */
+            display: flex; flex-direction: column;
         }
 
-        .config-title {
+        /* --- 正面佈局 --- */
+        .front-face {
+            z-index: 2;
+        }
+
+        /* 1. 頂部資訊區 (Level & Tag) */
+        .card-top-bar {
+            padding: 24px 24px 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .status-tag {
             font-family: var(--font-eng);
             font-weight: 700;
-            font-size: 14px;
-            color: var(--text-sub);
+            font-size: 12px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 15px;
-            text-align: center;
+            color: var(--text-grey);
+            background: #F2F4F7;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        /* 2. 單字顯示區 (Big Word) */
+        .word-section {
+            padding: 10px 24px;
+            margin-top: 10px;
+        }
+        
+        .main-word {
+            font-family: var(--font-eng);
+            font-weight: 800; /* Extra Bold */
+            font-size: 3.8rem; /* 超大字體 */
+            line-height: 1.1;
+            color: var(--text-dark);
+            letter-spacing: -1px;
+            word-break: break-word;
+            margin-bottom: 12px;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pos-tag {
+            font-family: var(--font-eng);
+            font-style: italic;
+            font-weight: 500;
+            color: var(--text-grey);
+            font-size: 1rem;
+        }
+
+        .kk-tag {
+            font-family: var(--font-eng);
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .btn-sound-inline {
+            background: rgba(0, 86, 210, 0.1);
+            color: var(--primary);
+            border: none;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+
+        /* 3. 圖片區域 (Bottom Visual) */
+        .visual-section {
+            flex: 1; /* 佔據剩餘空間 */
+            width: 100%;
+            position: relative;
+            margin-top: 20px;
+            border-top-left-radius: 32px; /* 特殊造型 */
+            border-top-right-radius: 32px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .word-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: block;
         }
 
-        /* 重寫按鈕樣式 - 更像遊戲選項 */
-        .grid-az {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-            gap: 8px;
-            margin-bottom: 30px;
-        }
-
-        .grid-level {
+        /* --- 底部控制區 (懸浮按鈕) --- */
+        .control-cluster {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .game-opt-btn {
-            background: #f0f2f5;
-            border: none;
-            color: var(--text-main);
-            border-radius: 8px;
-            padding: 10px;
-            font-family: var(--font-eng);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .game-opt-btn:hover {
-            background: #e1e4e8;
-        }
-
-        .game-opt-btn.active {
-            background: var(--primary-blue);
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(0,86,210,0.3);
-        }
-
-        .close-config-btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--text-main);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-family: var(--font-eng);
-            font-weight: 700;
-            letter-spacing: 1px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .close-config-btn:hover { opacity: 0.9; }
-
-        /* --- 主內容區 (微調高度，因為移除了大 filter) --- */
-        #app { 
-            flex: 1; width: 100%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            gap: 20px; 
-            padding: 0 20px; 
-            box-sizing: border-box; 
-            padding-bottom: 90px; 
-            overflow: hidden; 
-        }
-
-        /* --- 卡片容器 --- */
-        .card-container { 
-            height: 55vh; /* 稍微變高一點，因為空間變多了 */
-            max-height: 520px; 
-            min-height: 400px; 
-            perspective: 1000px; 
-            cursor: pointer; 
-            width: 100%;
-            max-width: 320px; 
-            flex: 1 1 auto;   
-        }
-        
-        .card { 
-            width: 100%; height: 100%; position: relative; 
-            transform-style: preserve-3d; 
-            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            border-radius: var(--border-radius); 
-        }
-        .card.flipped { transform: rotateY(180deg); }
-        
-        .card-face { 
-            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
-            border-radius: var(--border-radius);
-            display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; 
-            background: var(--bg-card); 
-            box-sizing: border-box; 
-            border: none;
-            box-shadow: var(--shadow-soft); 
-            overflow: hidden; 
-        }
-        .card-front { z-index: 2; }
-        
-        .level-badge {
-            position: absolute; top: 16px; left: 16px; 
-            padding: 4px 10px;
-            background: var(--primary-blue); 
-            color: #fff;
-            font-size: 12px; font-weight: 500; 
-            font-family: var(--font-eng);
+            gap: 12px;
             z-index: 10;
-            letter-spacing: 1px;
-            border-radius: var(--border-radius);
-            opacity: 0.8; /* 稍微透明一點 */
         }
 
-        .card-action-btn { 
-            position: absolute; top: 12px; 
-            background: #fff; 
+        .nav-btn {
+            width: 56px; height: 56px;
+            border-radius: 18px; /* 方形圓角 */
             border: none;
-            width: 40px; height: 40px; 
-            border-radius: var(--border-radius); 
-            cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; 
-            color: var(--primary-blue); 
-            z-index: 20; transition: all 0.2s;
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
-        .card-action-btn:hover { 
-            background-color: var(--primary-blue);
+
+        .nav-btn.prev {
+            background: rgba(255, 255, 255, 0.85);
+            color: var(--text-dark);
+        }
+
+        .nav-btn.next {
+            background: var(--text-dark); /* 黑色按鈕 */
             color: #fff;
         }
-        
-        .btn-audio { right: 10px; }
-        .btn-dict { right: 56px; } 
-        
-        .card-img { 
-            width: 100%; height: 48%; /* 圖片佔比稍微加大 */
-            object-fit: cover; 
-            margin-top: 0;
+        .nav-btn.next:active { transform: scale(0.9); }
+        .nav-btn.prev:active { transform: scale(0.9); }
+
+        /* --- 反面佈局 --- */
+        .back-face {
+            background: var(--text-dark); /* 反面用深色模式，增加對比 */
+            color: #fff;
+            transform: rotateY(180deg);
+            padding: 40px;
+            box-sizing: border-box;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .trans-text {
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 20px;
         }
         
-        .text-area { 
-            padding: 20px; display: flex; flex-direction: column; 
-            align-items: center; width: 100%; flex: 1; justify-content: center; 
-        }
-        
-        .word-text { 
+        .hint-text {
             font-family: var(--font-eng);
-            font-size: 2.2em; 
-            font-weight: 700; 
-            color: var(--primary-blue); 
-            margin: 5px 0 0 0; text-align: center; letter-spacing: -0.5px;
-        }
-        .pos-text { 
-            font-size: 0.9em; color: var(--text-sub); 
-            font-weight: 400; font-style: italic;
-            background: transparent; padding: 0; margin: 8px 0;
-        }
-        .kk-text { 
-            font-size: 1rem; color: #aaa; font-family: var(--font-eng); 
-            font-weight: 300; min-height: 24px; margin-top: 5px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 40px;
         }
 
-        .card-back { 
-            background-color: #fff; transform: rotateY(180deg); padding: 40px; 
-            text-align: center; 
-            border: none; box-shadow: var(--shadow-soft);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        /* --- 設定選單 (維持原邏輯但美化) --- */
+        .config-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(227, 229, 232, 0.95); /* 配合背景色 */
+            z-index: 2000;
+            display: flex; flex-direction: column; justify-content: flex-end; /* 底部滑出 */
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
         }
+        .config-overlay.open { opacity: 1; pointer-events: auto; }
         
-        .trans-text { 
-            font-family: var(--font-main);
-            font-size: 1.6em; 
-            font-weight: 500;
-            color: var(--text-main); 
-            line-height: 1.6; width: 100%; 
-            background: transparent; padding: 0; border: none; box-shadow: none;
+        .config-panel {
+            background: #fff;
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            padding: 40px 30px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            max-height: 80vh; overflow-y: auto;
         }
-        .hint-text { 
+        .config-overlay.open .config-panel { transform: translateY(0); }
+
+        .config-title {
             font-family: var(--font-eng);
-            font-size: 0.75em; color: #ddd; margin-top: 40px; 
-            font-weight: 400; letter-spacing: 1px; text-transform: uppercase;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            display: block;
         }
 
-        /* --- Pagination (底部切換區) --- */
-        .pagination { 
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            width: auto; 
-            min-width: 140px; 
-            height: 48px;     /* 稍微加大好按 */
-            padding: 4px 10px; 
-            
-            border-radius: 50px; /* 變回圓潤膠囊風格 */
-            display: flex; align-items: center; justify-content: center; gap: 15px; 
-            
-            background: #fff; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* 加點陰影 */
-            z-index: 999;
+        .grid-options {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px;
         }
-        .page-btn { 
-            background: transparent;
-            border: none; cursor: pointer; 
-            color: var(--text-main); 
-            width: 40px; height: 40px; 
-            border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; transition: all 0.2s; 
-        }
-        .page-btn:hover:not(:disabled) { background: #f5f5f5; color: var(--primary-blue); }
-        .page-btn:disabled { color: #eee; cursor: not-allowed; }
         
-        .page-info { 
-            font-weight: 700; 
-            color: var(--primary-blue); 
-            font-size: 1em; 
-            min-width: 50px; text-align: center; font-family: var(--font-eng); 
+        .opt-btn {
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            background: #fff;
+            color: var(--text-dark);
+            font-family: var(--font-eng);
+            font-weight: 600;
+            cursor: pointer;
         }
-        .error-msg { color: #E53935; font-size: 0.9em; margin-top: 10px; text-align: center; }
-
-        /* ★★★ 手机版专属设定 ★★★ */
-        @media (max-width: 600px) {
-            .pagination { bottom: 30px; min-width: 120px; }
-            
-            /* 堆叠背景 */
-            .stack-background {
-                display: block; position: absolute;
-                width: 76vw; max-width: 320px; height: 50vh; z-index: 0;
-            }
-            .stack-layer {
-                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                background: #fff; 
-                border: none;
-                border-radius: var(--border-radius);
-                box-shadow: 0 2px 10px rgba(0,0,0,0.02); 
-                transition: transform 0.3s ease;
-            }
-            .stack-layer:nth-child(1) { transform: translateY(8px) scale(0.96); z-index: 1; opacity: 0.6; }
-
-            .card-container { 
-                flex: 0 0 auto !important; position: absolute !important; z-index: 10;
-                width: 76vw !important; max-width: 320px !important; height: 50vh;
-            }
-            #app .card-container ~ .card-container { display: none; }
-            
-            /* 手機版字體 */
-            .word-text { font-size: 2.0em; } 
-            .trans-text { font-size: 1.4em; }
-            
-            .card, .card-face, .stack-layer { border-radius: var(--border-radius); }
+        .opt-btn.active {
+            background: var(--text-dark);
+            color: #fff;
+            border-color: var(--text-dark);
         }
 
-        @media (min-width: 601px) {
-            .stack-background { display: none; }
+        /* RWD 微調 */
+        @media (max-width: 380px) {
+            .main-word { font-size: 3rem; }
+            .nav-btn { width: 48px; height: 48px; }
         }
     </style>
 </head>
 <body>
 
-<!-- Header 容器 -->
-<div id="header-container"></div>
+    <div id="header-container"></div>
     
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <p id="loading-text" style="font-weight: 500; font-size: 14px; letter-spacing: 1px; color: #888;">LOADING</p>
-        <p id="error-log" class="error-msg"></p>
+    <!-- 右上角設定按鈕 -->
+    <div class="hud-trigger" onclick="toggleConfig()">
+        <span class="material-icons" style="color: #333;">tune</span>
     </div>
 
-    <!-- ★ 修改：新的 HUD 狀態列 -->
-    <div class="hud-container">
-        <div class="status-pill" onclick="toggleConfig()">
-            <span id="hud-level">All</span>
-            <span style="color: #ddd;">|</span>
-            <span id="hud-letter">A</span>
-            <span class="material-icons" style="font-size: 16px; margin-left: 4px;">tune</span>
-        </div>
+    <!-- App 主區域 -->
+    <div id="app">
+        <!-- 卡片會由 JS 動態生成 -->
+        <div class="spinner" style="border-top-color: var(--text-dark);"></div>
     </div>
 
-    <!-- ★ 修改：全螢幕設定面板 (原本的 Filter) -->
+    <!-- 設定面板 -->
     <div class="config-overlay" id="configOverlay">
         <div class="config-panel">
-            <span class="config-title">Select Level</span>
-            <div class="grid-level" id="levelFilterBar">
-                <button class="game-opt-btn active" onclick="filterByLevel('All')">ALL</button>
-                <button class="game-opt-btn" onclick="filterByLevel('Level 1')">Level 1</button>
-                <button class="game-opt-btn" onclick="filterByLevel('Level 2')">Level 2</button>
-                <button class="game-opt-btn" onclick="filterByLevel('Level 3')">Level 3</button>
-                <button class="game-opt-btn" onclick="filterByLevel('Level 4')">Level 4</button>
-                <button class="game-opt-btn" onclick="filterByLevel('Level 5')">Level 5</button>
-                <button class="game-opt-btn" onclick="filterByLevel('Level 6')">Level 6</button>
+            <span class="config-title">Level</span>
+            <div class="grid-options" id="levelOptions">
+                <!-- JS Inject -->
             </div>
 
-            <span class="config-title">Select Letter</span>
-            <div class="grid-az" id="azFilterBar"></div>
+            <span class="config-title">Starting Letter</span>
+            <div class="grid-options" id="azOptions" style="display: grid; grid-template-columns: repeat(6, 1fr);">
+                <!-- JS Inject -->
+            </div>
 
-            <button class="close-config-btn" onclick="toggleConfig()">RETURN TO GAME</button>
+            <button onclick="toggleConfig()" style="width:100%; padding:16px; background:var(--primary); color:#fff; border:none; border-radius:16px; font-weight:bold; font-family:var(--font-eng); font-size:16px;">
+                CONFIRM
+            </button>
         </div>
-    </div>
-
-<div id="app">
-    <!-- 堆叠背景 -->
-    <div class="stack-background">
-        <div class="stack-layer"></div>
-        <div class="stack-layer"></div>
-    </div>
-</div>
-    
-    <div class="pagination" id="paginationControl">
-        <button class="page-btn" onclick="changePage(-1)"><span class="material-icons">arrow_back</span></button>
-        <span class="page-info" id="pageInfo">- / -</span>
-        <button class="page-btn" onclick="changePage(1)"><span class="material-icons">arrow_forward</span></button>
     </div>
 
 <script>
-    // 1. 設定 Google Sheet ID 與 LocalStorage Key
     const SHEET_ID = '1Piz5rwAWy9f0B0WFjz6WlBTfkp89r_7q4mo41teEkoE';
-    const STORAGE_KEY = 'vocab_card_merged_v2'; 
+    const STORAGE_KEY = 'vocab_app_v3'; 
 
-    // 2. 各個 Level 的 GID
     const LEVEL_CONFIG = [
         { level: 'Level 1', gid: '1467595538' },
         { level: 'Level 2', gid: '2047989815' }, 
@@ -501,26 +377,16 @@
         { level: 'Level 6', gid: '843087703' }
     ];
 
-    const generateImgUrl = (word) => `https://tse2.mm.bing.net/th?q=${encodeURIComponent(word)}&w=400&h=300&c=7&rs=1&p=0`;
-
-    let fullVocabData = [], displayData = [], currentLetter = 'A', currentLevel = 'All', currentPage = 1, itemsPerPage = 4;
+    let fullVocabData = [], displayData = [], currentLetter = 'A', currentLevel = 'All', currentIndex = 0;
     const phoneticCache = {}; 
-
     const app = document.getElementById('app');
-    const loadingText = document.getElementById('loading-text');
-    const errorLog = document.getElementById('error-log');
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const spinner = document.querySelector('.spinner');
 
+    // Init
     fetchAllLevels();
-
-    window.addEventListener('resize', () => {
-        updateItemsPerPage();
-        renderPage();
-    });
+    initFilters();
 
     function saveProgress() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ letter: currentLetter, level: currentLevel, page: currentPage }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ letter: currentLetter, level: currentLevel, index: currentIndex }));
     }
 
     function loadProgress() {
@@ -529,21 +395,10 @@
             if (state) {
                 if (state.letter) currentLetter = state.letter;
                 if (state.level) currentLevel = state.level;
-                if (state.page) currentPage = state.page;
+                // 我們這裡改用 index 而不是 page，因為一次顯示一張
+                if (state.index !== undefined) currentIndex = state.index;
             }
         } catch (e) {}
-    }
-
-    // ★ 新增：切換設定面板顯示
-    function toggleConfig() {
-        const overlay = document.getElementById('configOverlay');
-        overlay.classList.toggle('open');
-    }
-
-    // ★ 新增：更新 HUD 文字
-    function updateHudText() {
-        document.getElementById('hud-level').innerText = currentLevel === 'All' ? 'ALL LEVELS' : currentLevel.toUpperCase();
-        document.getElementById('hud-letter').innerText = currentLetter;
     }
 
     async function fetchAllLevels() {
@@ -561,27 +416,11 @@
                 .catch(() => []);
         });
 
-        try {
-            const allData = await Promise.all(promises);
-            fullVocabData = mergeAndDeduplicate(allData.flat());
-            
-            if (fullVocabData.length === 0) throw new Error("讀取失敗");
-
-            loadProgress();
-            initAZFilters();
-            updateItemsPerPage();
-            applyFilters(true);
-            updateLevelBtnUI(); // 初始化 UI
-
-            loadingOverlay.style.opacity = '0';
-            setTimeout(() => loadingOverlay.style.display = 'none', 500);
-
-        } catch (e) {
-            spinner.style.display = 'none';
-            loadingText.innerText = "讀取失敗";
-            errorLog.innerText = "請稍後再試";
-            errorLog.style.display = 'block';
-        }
+        const allData = await Promise.all(promises);
+        fullVocabData = mergeAndDeduplicate(allData.flat());
+        
+        loadProgress();
+        applyFilters(currentIndex === 0); // 若剛載入，且無進度，則從頭
     }
 
     function processData(rawData, levelName) {
@@ -600,7 +439,7 @@
                     pos = rest.substring(openParen + 1, closeParen).replace(/\d+/g, ''); 
                     trans = rest.substring(closeParen + 1).trim();   
                 }
-                parsedList.push({ word, pos, trans, level: levelName, levels: [levelName], img: generateImgUrl(word) });
+                parsedList.push({ word, pos, trans, level: levelName, levels: [levelName], img: `https://tse2.mm.bing.net/th?q=${encodeURIComponent(word)}&w=600&h=800&c=7&rs=1&p=0` });
             } catch (e) {}
         });
         return parsedList;
@@ -612,8 +451,6 @@
             const key = item.word.toLowerCase(); 
             if (map.has(key)) {
                 const existing = map.get(key);
-                if (item.pos && !existing.pos.includes(item.pos)) existing.pos += ` / ${item.pos}`;
-                if (item.trans && !existing.trans.includes(item.trans)) existing.trans += `；${item.trans}`;
                 if (!existing.levels.includes(item.level)) existing.levels.push(item.level);
             } else {
                 map.set(key, item);
@@ -622,138 +459,161 @@
         return Array.from(map.values());
     }
 
-    function updateItemsPerPage() {
-        const w = window.innerWidth;
-        if (w < 576) itemsPerPage = 1;       
-        else if (w < 1024) itemsPerPage = 2; 
-        else if (w < 1440) itemsPerPage = 3; 
-        else itemsPerPage = 4;               
-    }
-
-    function initAZFilters() {
-        const bar = document.getElementById('azFilterBar');
-        bar.innerHTML = ''; 
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
+    function initFilters() {
+        // Level Buttons
+        const lvlContainer = document.getElementById('levelOptions');
+        const levels = ['All', 'Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5', 'Level 6'];
+        levels.forEach(l => {
             const btn = document.createElement('button');
-            btn.className = 'game-opt-btn'; // 使用新樣式
-            btn.innerText = letter;
-            if(letter === currentLetter) btn.classList.add('active');
+            btn.className = 'opt-btn';
+            btn.innerText = l === 'All' ? 'ALL' : l;
             btn.onclick = () => {
-                document.querySelectorAll('#azFilterBar .game-opt-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentLetter = letter;
-                applyFilters(false); 
-                toggleConfig(); // 點選後自動關閉選單
+                currentLevel = l;
+                updateFilterUI();
+                applyFilters(true);
             };
-            bar.appendChild(btn);
+            lvlContainer.appendChild(btn);
+        });
+
+        // AZ Buttons
+        const azContainer = document.getElementById('azFilterBar') || document.getElementById('azOptions');
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = l;
+            btn.onclick = () => {
+                currentLetter = l;
+                updateFilterUI();
+                applyFilters(true); // Reset index to 0
+            };
+            azContainer.appendChild(btn);
         });
     }
 
-    function filterByLevel(level) {
-        currentLevel = level;
-        updateLevelBtnUI();
-        applyFilters(false);
-        // toggleConfig(); // Level 可能想多看幾眼，這裡不自動關閉
-    }
-
-    function updateLevelBtnUI() {
-        document.querySelectorAll('#levelFilterBar .game-opt-btn').forEach(btn => {
-            const targetText = btn.innerText;
-            // 簡單比對
-            if (btn.innerText === (currentLevel === 'All' ? 'ALL' : currentLevel)) btn.classList.add('active');
-            else btn.classList.remove('active');
+    function updateFilterUI() {
+        document.querySelectorAll('#levelOptions .opt-btn').forEach(b => {
+            b.classList.toggle('active', b.innerText === (currentLevel === 'All' ? 'ALL' : currentLevel));
+        });
+        document.querySelectorAll('#azOptions .opt-btn').forEach(b => {
+            b.classList.toggle('active', b.innerText === currentLetter);
         });
     }
 
-    function applyFilters(preservePage = false) {
+    function applyFilters(resetIndex) {
         let filtered = fullVocabData.filter(item => item.word.toUpperCase().startsWith(currentLetter));
         if (currentLevel !== 'All') filtered = filtered.filter(item => item.levels.includes(currentLevel));
         filtered.sort((a, b) => a.word.localeCompare(b.word));
         displayData = filtered;
-        if (!preservePage) currentPage = 1;
+        
+        if (resetIndex) currentIndex = 0;
+        if (currentIndex >= displayData.length) currentIndex = 0;
+        
         saveProgress();
-        updateHudText(); // 更新 HUD 顯示
-        renderPage();
+        updateFilterUI();
+        renderCard();
     }
 
-    function changePage(dir) {
-        const total = Math.ceil(displayData.length / itemsPerPage);
-        let next = currentPage + dir;
-        if (next > total) next = 1;      
-        if (next < 1) next = total;      
-        currentPage = next;
+    function nextCard(dir) {
+        let next = currentIndex + dir;
+        if (next >= displayData.length) next = 0;
+        if (next < 0) next = displayData.length - 1;
+        currentIndex = next;
         saveProgress();
-        renderPage();
+        
+        // Add simple transition
+        const card = document.querySelector('.app-card-wrapper');
+        if(card) {
+            card.style.opacity = '0';
+            card.style.transform = dir > 0 ? 'translateX(-20px)' : 'translateX(20px)';
+            setTimeout(() => {
+                renderCard();
+            }, 200);
+        } else {
+            renderCard();
+        }
     }
 
-    function renderPage() {
-        const stackBg = document.querySelector('.stack-background');
-        app.innerHTML = ''; 
-        if (stackBg) app.appendChild(stackBg);
-
-        const total = Math.ceil(displayData.length / itemsPerPage);
-        if (currentPage > total && total > 0) currentPage = 1;
-
+    function renderCard() {
+        app.innerHTML = '';
         if (displayData.length === 0) {
-            const msg = document.createElement('div');
-            msg.style.cssText = "color:#888; font-family:'Outfit'; font-weight:700; font-size: 1.2em; z-index: 20; text-align:center; padding-top:50px; opacity: 0.5;";
-            msg.innerText = 'NO DATA';
-            app.appendChild(msg);
-            document.getElementById('paginationControl').style.display = 'none';
+            app.innerHTML = '<div style="color:#888;">NO DATA</div>';
             return;
         }
-        document.getElementById('paginationControl').style.display = 'flex';
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const pageData = displayData.slice(start, start + itemsPerPage);
+        const item = displayData[currentIndex];
+        const kkId = `kk-${item.word}`;
         
-        document.getElementById('pageInfo').innerText = `${currentPage} / ${total}`;
-        const btns = document.querySelectorAll('.page-btn');
-        if(btns.length > 0) {
-            btns[0].disabled = (currentPage === 1 && total <= 1);
-            btns[1].disabled = (currentPage === total && total <= 1);
-        }
-
-        pageData.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'card-container';
-            
-            if (window.innerWidth <= 600) initTinderSwipe(div);
-
-            const kkId = `kk-${item.word}-${Math.random().toString(36).substr(2, 5)}`;
-
-            div.innerHTML = `
-                <div class="card">
-                    <div class="card-face card-front">
-                        <div class="level-badge">${item.level.replace('Level ', 'LV.')}</div>
-                        <a href="https://dictionary.cambridge.org/dictionary/english-chinese-traditional/${item.word.toLowerCase()}" 
-                           target="_blank" class="card-action-btn btn-dict" onclick="event.stopPropagation()"
-                           title="翻閱字典"><span class="material-icons" style="font-size:18px;">menu_book</span></a>
-                        <button class="card-action-btn btn-audio" onclick="playAudio(event, '${item.word}')" title="聆聽發音">
-                            <span class="material-icons" style="font-size:20px;">volume_up</span>
+        // 建立卡片 HTML 結構
+        const wrapper = document.createElement('div');
+        wrapper.className = 'app-card-wrapper';
+        
+        wrapper.innerHTML = `
+            <!-- 正面 -->
+            <div class="card-face front-face">
+                <div class="card-top-bar">
+                    <div class="status-tag">${item.level.replace('Level ', 'LV.')}</div>
+                    <div class="status-tag">${currentIndex + 1} / ${displayData.length}</div>
+                </div>
+                
+                <div class="word-section">
+                    <div class="main-word">${item.word}</div>
+                    <div class="meta-row">
+                        <button class="btn-sound-inline" onclick="playAudio(event, '${item.word}')">
+                            <span class="material-icons" style="font-size:18px;">volume_up</span>
                         </button>
-                        <img src="${item.img}" alt="${item.word}" class="card-img" loading="lazy" onerror="this.src='https://dummyimage.com/400x300/f5f5f5/cccccc&text=${item.word}'">
-                        <div class="text-area">
-                            <div class="word-text">${item.word}</div>
-                            ${item.pos ? `<div class="pos-text">${item.pos}</div>` : ''}
-                            <div class="kk-text" id="${kkId}">${phoneticCache[item.word] ? phoneticCache[item.word] : '...'}</div>
-                        </div>
-                    </div>
-                    <div class="card-face card-back">
-                        <div class="trans-text">${item.trans}</div>
-                        <div class="hint-text">TAP TO RETURN</div>
+                        <span class="kk-tag" id="${kkId}">...</span>
+                        ${item.pos ? `<span class="pos-tag">${item.pos}</span>` : ''}
                     </div>
                 </div>
-            `;
-            
-            div.querySelector('.card').onclick = function() { 
-                this.classList.toggle('flipped'); 
-            };
-            
-            app.appendChild(div);
 
-            if (!phoneticCache[item.word]) fetchPhonetic(item.word, kkId);
-        });
+                <div class="visual-section" onclick="flipCard()">
+                    <img src="${item.img}" class="word-image" loading="lazy" onerror="this.src='https://dummyimage.com/600x800/f0f0f0/cccccc&text=${item.word}'">
+                </div>
+            </div>
+
+            <!-- 反面 -->
+            <div class="card-face back-face" onclick="flipCard()">
+                <div class="trans-text">${item.trans}</div>
+                <a href="https://dictionary.cambridge.org/dictionary/english-chinese-traditional/${item.word.toLowerCase()}" 
+                   target="_blank" onclick="event.stopPropagation()"
+                   style="color: var(--accent-green); text-decoration:none; margin-top:20px; border-bottom:1px solid var(--accent-green);">
+                   Open Dictionary
+                </a>
+                <div class="hint-text">Tap to flip back</div>
+            </div>
+
+            <!-- 導航按鈕 (懸浮於卡片之上，但獨立於翻轉結構外) -->
+            <div class="control-cluster">
+                <button class="nav-btn prev" onclick="nextCard(-1)">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <button class="nav-btn next" onclick="nextCard(1)">
+                    <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+        `;
+
+        app.appendChild(wrapper);
+
+        // Fetch KK
+        if (!phoneticCache[item.word]) {
+            fetchPhonetic(item.word, kkId);
+        } else {
+            setTimeout(() => {
+                const el = document.getElementById(kkId);
+                if(el) el.innerText = phoneticCache[item.word];
+            }, 0);
+        }
+    }
+
+    // Flip Logic
+    window.flipCard = function() {
+        const card = document.querySelector('.app-card-wrapper');
+        card.classList.toggle('flipped');
+    }
+
+    function toggleConfig() {
+        document.getElementById('configOverlay').classList.toggle('open');
     }
 
     async function fetchPhonetic(word, elementId) {
@@ -767,10 +627,8 @@
                 if (p) phonetic = p.text;
             }
             const el = document.getElementById(elementId);
-            if (el) {
-                phoneticCache[word] = phonetic ? `[${phonetic.replace(/\//g, '')}]` : '';
-                el.innerText = phoneticCache[word];
-            }
+            phoneticCache[word] = phonetic ? `[${phonetic.replace(/\//g, '')}]` : '';
+            if (el) el.innerText = phoneticCache[word];
         } catch (err) {}
     }
 
@@ -783,70 +641,11 @@
         }
     }
 
-    function initTinderSwipe(cardContainer) {
-        let startX = 0, currentX = 0;
-        let isDragging = false; 
-        let hasMoved = false; 
-
-        const swipeThreshold = 100; 
-        const moveTolerance = 10;   
-
-        cardContainer.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            isDragging = true;
-            hasMoved = false; 
-            cardContainer.style.transition = 'none'; 
-        }, {passive: true});
-
-        cardContainer.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            currentX = e.touches[0].clientX;
-            const diffX = currentX - startX;
-
-            if (Math.abs(diffX) > moveTolerance) {
-                hasMoved = true; 
-                const rotate = diffX * 0.05; 
-                const liftY = -Math.abs(diffX) * 0.2; 
-                cardContainer.style.transform = `translate(${diffX}px, ${liftY}px) rotate(${rotate}deg)`;
-            }
-        }, {passive: false});
-
-        cardContainer.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-            const diffX = currentX - startX;
-
-            if (hasMoved) {
-                if (e.cancelable) e.preventDefault(); 
-                e.stopPropagation();
-                cardContainer.style.transition = 'transform 0.4s ease-out, opacity 0.4s';
-
-                if (Math.abs(diffX) > swipeThreshold) {
-                    const dir = diffX > 0 ? 1 : -1; 
-                    const flyX = dir * window.innerWidth * 1.5;
-                    const flyY = -200; 
-                    cardContainer.style.transform = `translate(${flyX}px, ${flyY}px) rotate(${dir * 45}deg)`;
-                    cardContainer.style.opacity = '0'; 
-                    setTimeout(() => { changePage(dir > 0 ? -1 : 1); }, 300);
-                } else {
-                    cardContainer.style.transform = ''; 
-                }
-            } 
-        });
-    }
-
-    fetch('header.html')
-        .then(r => r.ok ? r.text() : Promise.reject())
-        .then(d => {
-            document.getElementById('header-container').innerHTML = d;
-            window.toggleMobileMenu = function() {
-                const m = document.getElementById('mobileNav');
-                if(m) m.classList.toggle('open');
-            };
-        })
-        .catch(e => console.warn(e));
+    // Header Fetch
+    fetch('header.html').then(r=>r.text()).then(d=>{
+        document.getElementById('header-container').innerHTML = d;
+    });
 
 </script>
-    
 </body>
 </html>
