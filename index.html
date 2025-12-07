@@ -12,7 +12,7 @@
     <!-- 字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -30,11 +30,10 @@
             --text-main: #2F3136;
             --text-sub: #888888;
             
-            --border-radius: 1px;
-            --border-width: 1px;
-            --border-color: #EAEAEA;
+            --border-radius: 4px; /* 統一圓角 */
             
             --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.04);
+            --shadow-float: 0 4px 12px rgba(0, 86, 210, 0.15);
             
             --font-main: 'Noto Sans TC', sans-serif;
             --font-eng: 'Outfit', sans-serif;
@@ -53,10 +52,10 @@
             align-items: center;
             font-weight: 400;
 
-            /* 背景格紋 */
+            /* 背景格紋 - 稍微淡化一點，讓沈浸感更好 */
             background-image: 
-                linear-gradient(rgba(0, 86, 210, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 86, 210, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(0, 86, 210, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 86, 210, 0.02) 1px, transparent 1px);
             background-size: 20px 20px;
         }
 
@@ -85,69 +84,153 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- 篩選區塊 (修改版) --- */
-        .filter-container {
-            background-color: var(--primary-light-bg);
-            /* ★ 修改 1: 懸浮獨立區塊，四周留白 ★ */
-            width: calc(100% - 32px); /* 左右各留 16px */
-            max-width: 800px; /* 電腦版限制最大寬度，比較好看 */
-            margin: 16px auto; /* 上下留白，水平置中 */
-            border-radius: 4px; /* 稍微圓角，像個面板 */
-            
+        /* ★★★ 新增：遊戲化 HUD (狀態膠囊) ★★★ */
+        .hud-container {
+            flex-shrink: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
             z-index: 100;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 12px 0; 
-            flex-shrink: 0; 
         }
 
-        .filter-bar {
-            width: 100%; display: flex; justify-content: flex-start; align-items: center; 
-            overflow-x: auto; gap: 4px; padding: 0 16px; box-sizing: border-box; 
-            scrollbar-width: none; min-height: 40px; 
-        }
-        .filter-bar::-webkit-scrollbar { display: none; }
-        @media (min-width: 850px) { .filter-bar { justify-content: center; } }
-        
-        .filter-btn {
-            flex: 0 0 auto; 
+        .status-pill {
             background: #fff;
+            border: 1px solid var(--primary-blue);
+            color: var(--primary-blue);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-eng);
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: var(--shadow-float);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .status-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 86, 210, 0.25);
+        }
+
+        .status-pill:active {
+            transform: scale(0.95);
+        }
+
+        .status-pill .material-icons {
+            font-size: 18px;
+        }
+
+        /* ★★★ 新增：設定面板 (全螢幕 Overlay) ★★★ */
+        .config-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .config-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .config-panel {
+            background: #fff;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .config-overlay.open .config-panel {
+            transform: translateY(0);
+        }
+
+        .config-title {
+            font-family: var(--font-eng);
+            font-weight: 700;
+            font-size: 14px;
             color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: block;
+        }
+
+        /* 重寫按鈕樣式 - 更像遊戲選項 */
+        .grid-az {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .grid-level {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .game-opt-btn {
+            background: #f0f2f5;
             border: none;
-            width: 32px; height: 32px; 
-            border-radius: var(--border-radius);
-            cursor: pointer; 
-            font-weight: 500; 
-            font-family: var(--font-eng); font-size: 14px; 
-            display: flex; align-items: center; justify-content: center; 
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: var(--font-eng);
+            font-weight: 500;
+            cursor: pointer;
             transition: all 0.2s;
         }
-        .filter-btn:hover { color: var(--primary-blue); }
-        .filter-btn.active { 
+
+        .game-opt-btn:hover {
+            background: #e1e4e8;
+        }
+
+        .game-opt-btn.active {
             background: var(--primary-blue);
-            color: #fff; 
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0,86,210,0.3);
         }
 
-        .level-bar {
-            width: 100%; display: flex; justify-content: center; flex-wrap: wrap;
-            gap: 6px; padding: 8px 15px 0 15px; box-sizing: border-box;
-        }
-        .level-btn {
-            background: #fff;
-            color: var(--text-sub);
+        .close-config-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--text-main);
+            color: #fff;
             border: none;
-            padding: 6px 16px; 
-            border-radius: var(--border-radius);
-            cursor: pointer; font-size: 13px; font-weight: 400;
-            font-family: var(--font-eng); transition: all 0.2s;
-            letter-spacing: 0.5px;
+            border-radius: 8px;
+            font-family: var(--font-eng);
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 10px;
         }
-        .level-btn:hover { color: var(--primary-blue); }
-        .level-btn.active { 
-            background: var(--primary-blue); color: #fff; 
-            font-weight: 500;
-        }
+        .close-config-btn:hover { opacity: 0.9; }
 
-        /* --- 主內容區 --- */
+        /* --- 主內容區 (微調高度，因為移除了大 filter) --- */
         #app { 
             flex: 1; width: 100%; 
             display: flex; 
@@ -162,9 +245,9 @@
 
         /* --- 卡片容器 --- */
         .card-container { 
-            height: 52vh; 
-            max-height: 500px; 
-            min-height: 380px; 
+            height: 55vh; /* 稍微變高一點，因為空間變多了 */
+            max-height: 520px; 
+            min-height: 400px; 
             perspective: 1000px; 
             cursor: pointer; 
             width: 100%;
@@ -203,17 +286,18 @@
             z-index: 10;
             letter-spacing: 1px;
             border-radius: var(--border-radius);
+            opacity: 0.8; /* 稍微透明一點 */
         }
 
         .card-action-btn { 
             position: absolute; top: 12px; 
-            background: #fff; /* 實心白底 */
+            background: #fff; 
             border: none;
             width: 40px; height: 40px; 
             border-radius: var(--border-radius); 
             cursor: pointer; display: flex; 
             align-items: center; justify-content: center; 
-            color: var(--primary-blue); /* 藍色圖示 */
+            color: var(--primary-blue); 
             z-index: 20; transition: all 0.2s;
             text-decoration: none;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
@@ -227,9 +311,9 @@
         .btn-dict { right: 56px; } 
         
         .card-img { 
-            width: 100%; height: 45%; object-fit: cover; 
+            width: 100%; height: 48%; /* 圖片佔比稍微加大 */
+            object-fit: cover; 
             margin-top: 0;
-            opacity: 1; 
         }
         
         .text-area { 
@@ -237,16 +321,15 @@
             align-items: center; width: 100%; flex: 1; justify-content: center; 
         }
         
-        /* ★ 修改 2: 字體再小一點 ★ */
         .word-text { 
             font-family: var(--font-eng);
-            font-size: 2.0em; /* 原本 2.4em */
-            font-weight: 500; 
+            font-size: 2.2em; 
+            font-weight: 700; 
             color: var(--primary-blue); 
             margin: 5px 0 0 0; text-align: center; letter-spacing: -0.5px;
         }
         .pos-text { 
-            font-size: 0.85em; color: var(--text-sub); 
+            font-size: 0.9em; color: var(--text-sub); 
             font-weight: 400; font-style: italic;
             background: transparent; padding: 0; margin: 8px 0;
         }
@@ -262,10 +345,9 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         
-        /* ★ 修改 2: 翻譯字體再小一點 ★ */
         .trans-text { 
             font-family: var(--font-main);
-            font-size: 1.5em; /* 原本 1.8em */
+            font-size: 1.6em; 
             font-weight: 500;
             color: var(--text-main); 
             line-height: 1.6; width: 100%; 
@@ -280,54 +362,45 @@
         /* --- Pagination (底部切換區) --- */
         .pagination { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            
-            /* ★ 修改 3: 更窄、高度 42px (比 level 高一點點) ★ */
             width: auto; 
-            min-width: 140px; /* 變窄 */
-            height: 42px;     /* 變矮 */
+            min-width: 140px; 
+            height: 48px;     /* 稍微加大好按 */
             padding: 4px 10px; 
             
-            border-radius: var(--border-radius);
-            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            border-radius: 50px; /* 變回圓潤膠囊風格 */
+            display: flex; align-items: center; justify-content: center; gap: 15px; 
             
             background: #fff; 
-            border: 1px solid var(--primary-blue);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* 加點陰影 */
             z-index: 999;
         }
         .page-btn { 
             background: transparent;
             border: none; cursor: pointer; 
-            color: var(--primary-blue); 
-            
-            width: 32px; height: 32px; /* 按鈕也縮小 */
-            
-            border-radius: var(--border-radius); 
+            color: var(--text-main); 
+            width: 40px; height: 40px; 
+            border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; transition: all 0.2s; 
         }
-        .page-btn:hover:not(:disabled) { background: var(--primary-light-bg); }
-        .page-btn:disabled { color: #ddd; cursor: not-allowed; }
+        .page-btn:hover:not(:disabled) { background: #f5f5f5; color: var(--primary-blue); }
+        .page-btn:disabled { color: #eee; cursor: not-allowed; }
         
-        /* 三角形箭頭 */
-        .page-btn .material-icons {
-            font-size: 24px; /* Icon 大小適中 */
-        }
-
         .page-info { 
-            font-weight: 500; 
+            font-weight: 700; 
             color: var(--primary-blue); 
-            font-size: 0.95em; /* 字體微調 */
+            font-size: 1em; 
             min-width: 50px; text-align: center; font-family: var(--font-eng); 
         }
         .error-msg { color: #E53935; font-size: 0.9em; margin-top: 10px; text-align: center; }
 
-/* ★★★ 手机版专属设定 ★★★ */
+        /* ★★★ 手机版专属设定 ★★★ */
         @media (max-width: 600px) {
-            .pagination { bottom: 25px; min-width: 120px; }
+            .pagination { bottom: 30px; min-width: 120px; }
             
             /* 堆叠背景 */
             .stack-background {
                 display: block; position: absolute;
-                width: 72vw; max-width: 300px; height: 45vh; z-index: 0;
+                width: 76vw; max-width: 320px; height: 50vh; z-index: 0;
             }
             .stack-layer {
                 position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -338,28 +411,23 @@
                 transition: transform 0.3s ease;
             }
             .stack-layer:nth-child(1) { transform: translateY(8px) scale(0.96); z-index: 1; opacity: 0.6; }
-            .stack-layer:nth-child(2) { display: none; }
 
             .card-container { 
                 flex: 0 0 auto !important; position: absolute !important; z-index: 10;
-                width: 72vw !important; max-width: 300px !important; height: 45vh;
+                width: 76vw !important; max-width: 320px !important; height: 50vh;
             }
             #app .card-container ~ .card-container { display: none; }
             
-            /* 手機版字體再微調 */
-            .word-text { font-size: 1.8em; } 
-            .trans-text { font-size: 1.3em; }
+            /* 手機版字體 */
+            .word-text { font-size: 2.0em; } 
+            .trans-text { font-size: 1.4em; }
             
             .card, .card-face, .stack-layer { border-radius: var(--border-radius); }
-            
-            .card-action-btn { width: 36px; height: 36px; }
-            .card-action-btn .material-icons { font-size: 20px; }
-            .btn-dict { right: 54px; } 
         }
 
-@media (min-width: 601px) {
-    .stack-background { display: none; }
-}
+        @media (min-width: 601px) {
+            .stack-background { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -373,16 +441,34 @@
         <p id="error-log" class="error-msg"></p>
     </div>
 
-    <div class="filter-container">
-        <div class="filter-bar" id="azFilterBar"></div>
-        <div class="level-bar" id="levelFilterBar">
-            <button class="level-btn active" onclick="filterByLevel('All')">ALL</button>
-            <button class="level-btn" onclick="filterByLevel('Level 1')">Level 1</button>
-            <button class="level-btn" onclick="filterByLevel('Level 2')">Level 2</button>
-            <button class="level-btn" onclick="filterByLevel('Level 3')">Level 3</button>
-            <button class="level-btn" onclick="filterByLevel('Level 4')">Level 4</button>
-            <button class="level-btn" onclick="filterByLevel('Level 5')">Level 5</button>
-            <button class="level-btn" onclick="filterByLevel('Level 6')">Level 6</button>
+    <!-- ★ 修改：新的 HUD 狀態列 -->
+    <div class="hud-container">
+        <div class="status-pill" onclick="toggleConfig()">
+            <span id="hud-level">All</span>
+            <span style="color: #ddd;">|</span>
+            <span id="hud-letter">A</span>
+            <span class="material-icons" style="font-size: 16px; margin-left: 4px;">tune</span>
+        </div>
+    </div>
+
+    <!-- ★ 修改：全螢幕設定面板 (原本的 Filter) -->
+    <div class="config-overlay" id="configOverlay">
+        <div class="config-panel">
+            <span class="config-title">Select Level</span>
+            <div class="grid-level" id="levelFilterBar">
+                <button class="game-opt-btn active" onclick="filterByLevel('All')">ALL</button>
+                <button class="game-opt-btn" onclick="filterByLevel('Level 1')">Level 1</button>
+                <button class="game-opt-btn" onclick="filterByLevel('Level 2')">Level 2</button>
+                <button class="game-opt-btn" onclick="filterByLevel('Level 3')">Level 3</button>
+                <button class="game-opt-btn" onclick="filterByLevel('Level 4')">Level 4</button>
+                <button class="game-opt-btn" onclick="filterByLevel('Level 5')">Level 5</button>
+                <button class="game-opt-btn" onclick="filterByLevel('Level 6')">Level 6</button>
+            </div>
+
+            <span class="config-title">Select Letter</span>
+            <div class="grid-az" id="azFilterBar"></div>
+
+            <button class="close-config-btn" onclick="toggleConfig()">RETURN TO GAME</button>
         </div>
     </div>
 
@@ -395,9 +481,9 @@
 </div>
     
     <div class="pagination" id="paginationControl">
-        <button class="page-btn" onclick="changePage(-1)"><span class="material-icons">arrow_left</span></button>
+        <button class="page-btn" onclick="changePage(-1)"><span class="material-icons">arrow_back</span></button>
         <span class="page-info" id="pageInfo">- / -</span>
-        <button class="page-btn" onclick="changePage(1)"><span class="material-icons">arrow_right</span></button>
+        <button class="page-btn" onclick="changePage(1)"><span class="material-icons">arrow_forward</span></button>
     </div>
 
 <script>
@@ -405,7 +491,7 @@
     const SHEET_ID = '1Piz5rwAWy9f0B0WFjz6WlBTfkp89r_7q4mo41teEkoE';
     const STORAGE_KEY = 'vocab_card_merged_v2'; 
 
-    // 2. 各個 Level 的 GID (分頁 ID)
+    // 2. 各個 Level 的 GID
     const LEVEL_CONFIG = [
         { level: 'Level 1', gid: '1467595538' },
         { level: 'Level 2', gid: '2047989815' }, 
@@ -416,10 +502,6 @@
     ];
 
     const generateImgUrl = (word) => `https://tse2.mm.bing.net/th?q=${encodeURIComponent(word)}&w=400&h=300&c=7&rs=1&p=0`;
-
-    const getLevelColor = (levelStr) => {
-        return '#888'; 
-    };
 
     let fullVocabData = [], displayData = [], currentLetter = 'A', currentLevel = 'All', currentPage = 1, itemsPerPage = 4;
     const phoneticCache = {}; 
@@ -452,6 +534,18 @@
         } catch (e) {}
     }
 
+    // ★ 新增：切換設定面板顯示
+    function toggleConfig() {
+        const overlay = document.getElementById('configOverlay');
+        overlay.classList.toggle('open');
+    }
+
+    // ★ 新增：更新 HUD 文字
+    function updateHudText() {
+        document.getElementById('hud-level').innerText = currentLevel === 'All' ? 'ALL LEVELS' : currentLevel.toUpperCase();
+        document.getElementById('hud-letter').innerText = currentLetter;
+    }
+
     async function fetchAllLevels() {
         const promises = LEVEL_CONFIG.map(config => {
             const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${config.gid}`;
@@ -477,7 +571,7 @@
             initAZFilters();
             updateItemsPerPage();
             applyFilters(true);
-            updateLevelBtnUI();
+            updateLevelBtnUI(); // 初始化 UI
 
             loadingOverlay.style.opacity = '0';
             setTimeout(() => loadingOverlay.style.display = 'none', 500);
@@ -541,36 +635,32 @@
         bar.innerHTML = ''; 
         'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
             const btn = document.createElement('button');
-            btn.className = 'filter-btn';
+            btn.className = 'game-opt-btn'; // 使用新樣式
             btn.innerText = letter;
             if(letter === currentLetter) btn.classList.add('active');
             btn.onclick = () => {
-                document.querySelectorAll('#azFilterBar .filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#azFilterBar .game-opt-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentLetter = letter;
                 applyFilters(false); 
+                toggleConfig(); // 點選後自動關閉選單
             };
             bar.appendChild(btn);
         });
-        setTimeout(() => {
-            const active = document.querySelector('.filter-btn.active');
-            if(active) active.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-        }, 500);
     }
 
     function filterByLevel(level) {
         currentLevel = level;
         updateLevelBtnUI();
-        applyFilters(false); 
+        applyFilters(false);
+        // toggleConfig(); // Level 可能想多看幾眼，這裡不自動關閉
     }
 
     function updateLevelBtnUI() {
-        document.querySelectorAll('#levelFilterBar .level-btn').forEach(btn => {
+        document.querySelectorAll('#levelFilterBar .game-opt-btn').forEach(btn => {
             const targetText = btn.innerText;
-            let displayLevel = currentLevel;
-            if (currentLevel !== 'All') displayLevel = currentLevel;
-            
-            if (btn.innerText === displayLevel) btn.classList.add('active');
+            // 簡單比對
+            if (btn.innerText === (currentLevel === 'All' ? 'ALL' : currentLevel)) btn.classList.add('active');
             else btn.classList.remove('active');
         });
     }
@@ -582,6 +672,7 @@
         displayData = filtered;
         if (!preservePage) currentPage = 1;
         saveProgress();
+        updateHudText(); // 更新 HUD 顯示
         renderPage();
     }
 
@@ -605,7 +696,7 @@
 
         if (displayData.length === 0) {
             const msg = document.createElement('div');
-            msg.style.cssText = "color:#888; font-family:'Outfit'; font-weight:400; font-size: 1em; z-index: 20; text-align:center; padding-top:50px;";
+            msg.style.cssText = "color:#888; font-family:'Outfit'; font-weight:700; font-size: 1.2em; z-index: 20; text-align:center; padding-top:50px; opacity: 0.5;";
             msg.innerText = 'NO DATA';
             app.appendChild(msg);
             document.getElementById('paginationControl').style.display = 'none';
