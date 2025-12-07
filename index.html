@@ -30,7 +30,6 @@
             --text-grey: #888;
             
             --card-radius: 24px;
-            --img-radius: 16px;
             
             --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
 
@@ -44,7 +43,7 @@
             margin: 0; padding: 0;
             height: 100vh; height: 100dvh;
             overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; /* 改為從上開始排 */
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             background-image: radial-gradient(#d1d4d9 1px, transparent 1px);
             background-size: 20px 20px;
         }
@@ -55,21 +54,25 @@
         }
         #header-container * { pointer-events: auto; }
 
-        /* --- 新增：頂部資訊欄 (取代原本懸浮按鈕) --- */
+        /* --- 頂部資訊欄 (修改：大標題樣式) --- */
         .info-bar {
             width: 85vw; max-width: 360px;
-            margin-top: 80px; /* 避開 Header */
-            margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 80px; 
+            margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: flex-end;
             z-index: 50;
         }
         
         .filter-status {
-            font-family: var(--font-eng); font-weight: 700;
-            color: var(--primary); font-size: 0.9rem;
-            background: rgba(255,255,255,0.8); padding: 6px 16px;
-            border-radius: 20px; letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            font-family: var(--font-eng); font-weight: 800;
+            color: var(--text-dark); font-size: 1.8rem; /* 大字體 */
+            line-height: 1;
+            letter-spacing: -0.5px;
+            text-transform: capitalize;
+        }
+        .filter-sub {
+            font-size: 0.9rem; color: var(--text-grey); font-weight: 600;
+            margin-top: 4px; display: block;
         }
 
         .hud-trigger-inline {
@@ -78,22 +81,22 @@
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer;
             color: var(--text-dark);
+            margin-bottom: 4px; /* 對齊文字底部 */
         }
 
         /* --- 主區域 --- */
         #app {
             width: 100%; flex: 1;
             display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
+            justify-content: flex-start; align-items: center;
             position: relative;
-            padding-bottom: 80px;
         }
 
         /* --- 卡片容器 --- */
         .card-container {
             position: relative;
             width: 85vw; max-width: 360px;
-            height: 55vh; max-height: 520px; min-height: 400px;
+            height: 62vh; max-height: 600px; min-height: 500px;
             perspective: 1000px;
             z-index: 10;
         }
@@ -115,21 +118,68 @@
             border-radius: var(--card-radius);
             overflow: hidden;
             display: flex; flex-direction: column;
-            /* 讓點擊事件更順暢 */
-            touch-action: none; 
+            touch-action: none; /* 關鍵：防止瀏覽器預設滾動，交給 JS 處理 */
         }
 
-        /* --- 正面佈局 --- */
+        /* --- 正面佈局 (新版：上圖下文) --- */
         .front-face { z-index: 2; }
 
-        .top-info {
-            padding: 24px 24px 10px 24px;
-            text-align: center;
-            pointer-events: none; /* 讓點擊穿透到卡片 */
+        /* 上半部：圖片區 */
+        .visual-wrapper {
+            flex: 1.2; /* 佔比較大 */
+            width: 100%;
+            position: relative;
+            background: #f0f0f0;
+            overflow: hidden;
+            /* 只有上方有圓角 */
+            border-top-left-radius: var(--card-radius);
+            border-top-right-radius: var(--card-radius);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            isolation: isolate;
         }
-        
+
+        .word-image {
+            width: 100%; height: 100%; object-fit: cover;
+            display: block; pointer-events: none;
+        }
+
+        /* 右上角功能按鈕 (維持在圖片上) */
+        .action-cluster-top {
+            position: absolute; 
+            top: 0; right: 0;
+            z-index: 20;
+            background: #FFFFFF;
+            border-bottom-left-radius: 20px; /* 左下圓角 */
+            padding: 8px 8px 12px 14px;
+            display: flex; gap: 4px;
+        }
+
+        .action-btn {
+            width: 36px; height: 36px;
+            border: none; background: transparent; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); cursor: pointer; text-decoration: none;
+            transition: background 0.2s;
+        }
+        .action-btn:hover { background: #E8F0FE; }
+        .action-btn .material-icons { font-size: 24px; }
+
+        /* 下半部：文字與狀態區 */
+        .bottom-content {
+            flex: 1; /* 佔比較小 */
+            width: 100%;
+            padding: 20px 24px;
+            box-sizing: border-box;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center;
+            background: #fff;
+            border-bottom-left-radius: var(--card-radius);
+            border-bottom-right-radius: var(--card-radius);
+        }
+
         .level-pill {
-            display: inline-block;
             font-family: var(--font-eng); font-size: 11px; font-weight: 700;
             color: var(--text-grey); background: #F5F5F5;
             padding: 4px 12px; border-radius: 20px; letter-spacing: 1px;
@@ -137,86 +187,31 @@
         }
 
         .main-word {
-            font-family: var(--font-eng); font-weight: 800; font-size: 2.8rem;
-            color: var(--primary); line-height: 1.1; margin-bottom: 6px;
+            font-family: var(--font-eng); font-weight: 800; font-size: 2.6rem;
+            color: var(--primary); line-height: 1.1; margin-bottom: 4px;
         }
 
         .kk-row {
             font-family: var(--font-eng); color: #AAA; font-size: 1rem;
             display: flex; gap: 8px; justify-content: center; align-items: center;
+            margin-bottom: 20px;
         }
 
-        /* --- 圖片與按鈕區塊 --- */
-        .visual-wrapper {
-            flex: 1; 
-            position: relative;
-            margin: 10px 24px 24px 24px;
-            border-radius: var(--img-radius);
-            overflow: hidden; 
-            background: #eee;
-            /* 這裡移除 onclick，改由外層統一監聽，修復手機版問題 */
-            pointer-events: auto; 
-            isolation: isolate;
-        }
-
-        .word-image {
-            width: 100%; height: 100%; object-fit: cover;
-            display: block; transition: transform 0.3s;
-            pointer-events: none; /* 圖片本身不搶事件 */
-        }
-        
-        /* 
-           UI 修改 1: 右上角區塊 
-           - 貼齊 top/right
-           - 左下角圓角 (border-bottom-left-radius)
-        */
-        .action-cluster-top {
-            position: absolute; 
-            top: 0; right: 0;
-            z-index: 20;
-            background: #FFFFFF;
-            border-radius: 0; 
-            border-bottom-left-radius: 20px; /* 這裡加上圓角 */
-            padding: 8px 8px 12px 14px;
-            display: flex; gap: 4px;
-        }
-
-        .action-btn {
-            width: 36px; height: 36px;
-            border: none; background: transparent; 
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--primary); /* UI 修改 2: 藍色 Icon */
-            cursor: pointer;
-            text-decoration: none; /* 移除底線 */
-            transition: background 0.2s;
-        }
-        .action-btn:hover { background: #E8F0FE; }
-        .action-btn .material-icons { font-size: 24px; }
-
-        /* 
-           UI 修改 3: 左下角區塊 
-           - 貼齊 bottom/left
-           - 右上角圓角 (border-top-right-radius)
-        */
-        .status-cluster-bottom {
-            position: absolute; 
-            bottom: 0; left: 0;
-            z-index: 20;
-            background: #FFFFFF;
-            border-radius: 0; 
-            border-top-right-radius: 20px; /* 這裡加上圓角 */
-            padding: 14px 14px 8px 8px;
-            display: flex; flex-direction: column; gap: 8px;
+        /* 狀態按鈕列 (置中) */
+        .status-row {
+            display: flex; gap: 24px;
+            justify-content: center; align-items: center;
+            width: 100%;
         }
 
         .status-btn {
-            width: 34px; height: 34px;
+            width: 48px; height: 48px; /* 加大按鈕 */
             border-radius: 50%; 
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.2s;
-            font-size: 20px;
+            font-size: 28px; /* 加大 Icon */
             border: 1px solid rgba(0,0,0,0.05);
+            background: #fff;
         }
         .status-btn:active { transform: scale(0.9); }
         
@@ -224,11 +219,12 @@
         .status-btn.yellow { background: #FFF8E1; color: #F57F17; }  
         .status-btn.red { background: #FFEBEE; color: #C62828; }    
 
-        .status-btn.green.active { background: var(--status-green); color: #fff; border-color: transparent; }
-        .status-btn.yellow.active { background: var(--status-yellow); color: #fff; border-color: transparent; }
-        .status-btn.red.active { background: var(--status-red); color: #fff; border-color: transparent; }
+        .status-btn.green.active { background: var(--status-green); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3); }
+        .status-btn.yellow.active { background: var(--status-yellow); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3); }
+        .status-btn.red.active { background: var(--status-red); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3); }
 
-        /* --- UI 修改 4: 反面全藍色 --- */
+
+        /* --- 反面 --- */
         .back-face {
             background: var(--primary); /* 全藍底 */
             transform: rotateY(180deg);
@@ -236,13 +232,11 @@
             justify-content: center; align-items: center; text-align: center;
         }
         .trans-text {
-            font-size: 1.8rem; font-weight: 500; 
-            color: #FFFFFF; /* 白字 */
+            font-size: 1.8rem; font-weight: 500; color: #FFFFFF;
             margin-bottom: 20px;
         }
         .hint-text {
-            font-family: var(--font-eng); font-size: 0.8rem; 
-            color: rgba(255, 255, 255, 0.6); /* 半透明白字 */
+            font-family: var(--font-eng); font-size: 0.8rem; color: rgba(255, 255, 255, 0.6);
             letter-spacing: 1px; text-transform: uppercase;
         }
 
@@ -262,7 +256,6 @@
             cursor: pointer; transition: transform 0.2s;
         }
         .nav-btn:active { transform: scale(0.9); }
-        .nav-btn .material-icons { font-size: 28px; }
 
         .page-counter {
             font-family: var(--font-eng); font-weight: 700; color: var(--text-grey);
@@ -317,9 +310,8 @@
 
         @media (max-width: 400px) {
             .card-container { width: 90vw; height: 60vh; }
-            .visual-wrapper { margin: 10px 16px 16px 16px; }
-            .main-word { font-size: 2.4rem; }
             .info-bar { width: 90vw; margin-top: 60px; }
+            .main-word { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -327,9 +319,12 @@
 
     <div id="header-container"></div>
     
-    <!-- 新增：頂部資訊欄與設定按鈕 -->
+    <!-- 頂部資訊欄 -->
     <div class="info-bar">
-        <div class="filter-status" id="filterStatusDisplay">Loading...</div>
+        <div>
+            <div class="filter-status" id="filterTitle">Loading</div>
+            <span class="filter-sub" id="filterSub">...</span>
+        </div>
         <div class="hud-trigger-inline" onclick="toggleConfig()">
             <span class="material-icons">tune</span>
         </div>
@@ -357,11 +352,10 @@
     <div class="config-overlay" id="configOverlay">
         <div class="config-panel">
             
-            <!-- 新增：排序設定 -->
             <span class="config-title">Order</span>
-            <div class="grid-options" id="orderOptions">
+            <div class="grid-options">
                 <button class="opt-btn active" id="btn-seq" onclick="setSortMode('sequential')">A-Z</button>
-                <button class="opt-btn" id="btn-rnd" onclick="setSortMode('random')">Random (Shuffle)</button>
+                <button class="opt-btn" id="btn-rnd" onclick="setSortMode('random')">Shuffle</button>
             </div>
 
             <span class="config-title">Review by Status</span>
@@ -378,14 +372,10 @@
             </div>
 
             <span class="config-title">Level</span>
-            <div class="grid-options" id="levelOptions">
-                <!-- Levels -->
-            </div>
+            <div class="grid-options" id="levelOptions"></div>
 
             <span class="config-title">Letter</span>
-            <div class="grid-options" id="azOptions" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); width:100%;">
-                <!-- A-Z -->
-            </div>
+            <div class="grid-options" id="azOptions" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); width:100%;"></div>
 
             <button class="close-config" onclick="toggleConfig()">DONE</button>
         </div>
@@ -406,7 +396,7 @@
 
     let fullVocabData = [], displayData = [];
     let currentFilter = { type: 'level_az', value: 'All', letter: 'A' }; 
-    let sortMode = 'sequential'; // 'sequential' or 'random'
+    let sortMode = 'sequential'; 
     let currentIndex = 0;
     let statusDB = {}; 
     const phoneticCache = {}; 
@@ -431,7 +421,7 @@
 
     function setWordStatus(word, status) {
         if (statusDB[word] === status) {
-            delete statusDB[word]; // Toggle off
+            delete statusDB[word];
         } else {
             statusDB[word] = status;
         }
@@ -456,7 +446,6 @@
 
         const allData = await Promise.all(promises);
         fullVocabData = mergeAndDeduplicate(allData.flat());
-        
         applyFilters(true);
     }
 
@@ -497,7 +486,6 @@
     }
 
     function initUI() {
-        // Level Buttons
         const lvlContainer = document.getElementById('levelOptions');
         const levels = ['All', 'Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5', 'Level 6'];
         levels.forEach(l => {
@@ -513,7 +501,6 @@
             lvlContainer.appendChild(btn);
         });
 
-        // AZ Buttons
         const azContainer = document.getElementById('azOptions');
         'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l => {
             const btn = document.createElement('button');
@@ -535,7 +522,7 @@
         sortMode = mode;
         document.getElementById('btn-seq').classList.toggle('active', mode === 'sequential');
         document.getElementById('btn-rnd').classList.toggle('active', mode === 'random');
-        applyFilters(true); // 重新排序並重置索引
+        applyFilters(true);
     }
 
     function filterByStatus(status) {
@@ -549,12 +536,10 @@
 
     function updateFilterUI() {
         document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
-
-        // Restore sort mode active state
         document.getElementById('btn-seq').classList.toggle('active', sortMode === 'sequential');
         document.getElementById('btn-rnd').classList.toggle('active', sortMode === 'random');
 
-        let statusText = "";
+        let title = "", sub = "";
 
         if (currentFilter.type === 'level_az') {
             document.querySelectorAll('#levelOptions .opt-btn').forEach(b => {
@@ -563,14 +548,17 @@
             document.querySelectorAll('#azOptions .opt-btn').forEach(b => {
                 if(b.innerText === currentFilter.letter) b.classList.add('active');
             });
-            statusText = `${currentFilter.value === 'All' ? 'All Levels' : currentFilter.value} • ${currentFilter.letter}`;
+            title = currentFilter.value === 'All' ? 'All Levels' : currentFilter.value;
+            sub = `Starting with "${currentFilter.letter}"`;
         } else if (currentFilter.type === 'status') {
             document.querySelector(`.status-filter-btn.${currentFilter.value}`)?.classList.add('active');
-            const mapName = { 'green': 'Mastered', 'yellow': 'Review', 'red': 'Hard' };
-            statusText = `Status: ${mapName[currentFilter.value]}`;
+            const mapName = { 'green': 'Mastered', 'yellow': 'To Review', 'red': 'Hard Words' };
+            title = mapName[currentFilter.value];
+            sub = "Review Mode";
         }
 
-        document.getElementById('filterStatusDisplay').innerText = statusText;
+        document.getElementById('filterTitle').innerText = title;
+        document.getElementById('filterSub').innerText = sub;
     }
 
     function applyFilters(resetIndex) {
@@ -585,22 +573,18 @@
             filtered = fullVocabData.filter(item => statusDB[item.word] === currentFilter.value);
         }
 
-        // 排序邏輯
         if (sortMode === 'random') {
-            // Fisher-Yates Shuffle
             for (let i = filtered.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
             }
         } else {
-            // Sequential
             filtered.sort((a, b) => a.word.localeCompare(b.word));
         }
 
         displayData = filtered;
         
         if (resetIndex) currentIndex = 0;
-        // 確保索引不越界
         if (currentIndex >= displayData.length) currentIndex = 0;
         
         renderCard();
@@ -609,9 +593,8 @@
     function nextCard(dir) {
         if (displayData.length === 0) return;
         
-        // 避免快速點擊導致的計算錯誤
         const card = document.querySelector('.card');
-        if (card && card.style.opacity === '0') return; // 正在動畫中
+        if (card && card.style.opacity === '0') return; 
 
         let next = currentIndex + dir;
         if (next >= displayData.length) next = 0;
@@ -651,19 +634,10 @@
 
         const card = document.createElement('div');
         card.className = 'card';
-        // 移除 onclick="flipCard()"，改用下方 JS 統一處理
         card.innerHTML = `
             <div class="card-face front-face">
-                <div class="top-info">
-                    <div class="level-pill">${item.level.toUpperCase()}</div>
-                    <div class="main-word">${item.word}</div>
-                    <div class="kk-row">
-                        <span id="${kkId}">...</span>
-                        ${item.pos ? `<span>• ${item.pos}</span>` : ''}
-                    </div>
-                </div>
-
-                <!-- 圖片與按鈕區塊 -->
+                
+                <!-- 上：圖片區 -->
                 <div class="visual-wrapper">
                     <img src="${item.img}" class="word-image" loading="lazy">
                     
@@ -676,8 +650,18 @@
                             <span class="material-icons">menu_book</span>
                         </a>
                     </div>
+                </div>
 
-                    <div class="status-cluster-bottom" onclick="event.stopPropagation()">
+                <!-- 下：文字與操作區 -->
+                <div class="bottom-content">
+                    <div class="level-pill">${item.level.toUpperCase()}</div>
+                    <div class="main-word">${item.word}</div>
+                    <div class="kk-row">
+                        <span id="${kkId}">...</span>
+                        ${item.pos ? `<span>• ${item.pos}</span>` : ''}
+                    </div>
+
+                    <div class="status-row" onclick="event.stopPropagation()">
                         <div class="status-btn green ${currentStatus==='green'?'active':''}" onclick="setWordStatus('${item.word}', 'green')">
                             <span class="material-icons">sentiment_very_satisfied</span>
                         </div>
@@ -698,7 +682,7 @@
         `;
         
         cardWrapper.appendChild(card);
-        initTouchLogic(cardWrapper); // 綁定修復後的觸控邏輯
+        initTouchLogic(cardWrapper);
 
         if (!phoneticCache[item.word]) fetchPhonetic(item.word, kkId);
         else document.getElementById(kkId).innerText = phoneticCache[item.word];
@@ -733,33 +717,33 @@
         }
     }
 
-    // --- 核心修正：統一處理點擊翻面與滑動 (Touch Logic) ---
+    // --- 修正後的觸控邏輯 (修復翻面問題) ---
     function initTouchLogic(element) {
         let startX = 0, startY = 0;
         let isDragging = false;
-        const threshold = 60; // 滑動觸發門檻
+        const threshold = 80; // 滑動切換門檻
         let card = null;
 
         element.addEventListener('touchstart', e => {
-            // 只有當點擊目標不是按鈕時才啟動拖曳邏輯
             if (e.target.closest('.action-btn') || e.target.closest('.status-btn')) {
-                return;
+                return; // 不處理按鈕點擊
             }
             card = element.querySelector('.card');
             if(!card) return;
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
             isDragging = true;
-            card.style.transition = 'none'; // 拖曳時移除過渡效果
+            card.style.transition = 'none'; // 移除過渡以便跟隨手指
         }, {passive:true});
 
         element.addEventListener('touchmove', e => {
             if(!isDragging || !card) return;
             const currentX = e.touches[0].clientX;
             const diff = currentX - startX;
-            // 簡單的跟隨手指效果
+            // 輕微跟隨
             const rotate = diff * 0.05;
-            card.style.transform = `translateX(${diff}px) rotate(${rotate}deg) ${card.classList.contains('flipped') ? 'rotateY(180deg)' : ''}`;
+            const baseRotate = card.classList.contains('flipped') ? 'rotateY(180deg)' : '';
+            card.style.transform = `translateX(${diff}px) rotate(${rotate}deg) ${baseRotate}`;
         }, {passive:true});
 
         element.addEventListener('touchend', e => {
@@ -767,52 +751,40 @@
             isDragging = false;
             
             const endX = e.changedTouches[0].clientX;
-            const endY = e.changedTouches[0].clientY;
             const diffX = endX - startX;
-            const diffY = endY - startY;
-
+            
             card.style.transition = 'transform 0.4s ease';
 
-            // 判斷是否為「點擊」(位移很小)
-            if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
-                // 這是點擊 -> 翻面
-                card.style.transform = ''; // 復原位置
-                card.classList.toggle('flipped');
-            } else if (Math.abs(diffX) > threshold) {
-                // 這是滑動 -> 切換卡片
-                const dir = diffX > 0 ? -1 : 1; // 右滑上一張，左滑下一張
+            // 判斷邏輯：如果移動距離大於門檻，則切換；否則(包含點擊或微動)視為翻面
+            if (Math.abs(diffX) > threshold) {
+                // Swipe Action
+                const dir = diffX > 0 ? -1 : 1; 
                 const flyX = diffX > 0 ? window.innerWidth : -window.innerWidth;
                 const baseRotate = card.classList.contains('flipped') ? 'rotateY(180deg)' : '';
                 
                 card.style.transform = `translateX(${flyX}px) rotate(${diffX > 0 ? 20 : -20}deg) ${baseRotate}`;
-                
-                // 延遲後執行切換
                 setTimeout(() => nextCard(dir), 200);
             } else {
-                // 位移不夠 -> 彈回原位
+                // Click (Flip) Action
+                // 恢復位置並翻面
                 card.style.transform = card.classList.contains('flipped') ? 'rotateY(180deg)' : '';
+                // 這裡稍微延遲一下讓位置復原的視覺更順暢，也可直接翻
+                setTimeout(() => {
+                    card.classList.toggle('flipped');
+                }, 10);
             }
         });
 
-        // 支援滑鼠點擊 (桌面版翻面)
+        // 桌面點擊支援
         element.addEventListener('click', (e) => {
              if (e.target.closest('.action-btn') || e.target.closest('.status-btn')) return;
-             // 如果是觸控裝置，touchstart 已經處理了，這裡忽略
-             // 簡單判斷：如果剛剛觸發了 touch 事件就不處理 click
+             // 如果支援 touch，這個事件通常會在 touchend 後觸發，我們依靠 touchend 處理
+             if ('ontouchstart' in window) return;
+             
+             const c = element.querySelector('.card');
+             if(c) c.classList.toggle('flipped');
         });
     }
-    
-    // 桌面版簡單的點擊翻面 (輔助)
-    cardWrapper.addEventListener('click', (e) => {
-        // 透過 pointerType 判斷，如果是 mouse 才執行 (避免跟 touch 衝突)
-        // 但最簡單的方式是檢查是不是按鈕
-        if (e.target.closest('.action-btn') || e.target.closest('.status-btn')) return;
-        // 如果不是拖曳狀態 (由 touchend 處理了)，我們假設這是桌面版點擊
-        if ('ontouchstart' in window) return; // 手機版交給 touch logic
-
-        const card = document.querySelector('.card');
-        if(card) card.classList.toggle('flipped');
-    });
 
     fetch('header.html').then(r=>r.text()).then(d=>{
         document.getElementById('header-container').innerHTML = d;
