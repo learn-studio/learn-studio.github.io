@@ -30,7 +30,6 @@
             --font-main: 'Noto Sans TC', sans-serif;
             --font-eng: 'Outfit', sans-serif;
             
-            /* 統一間距設定 */
             --page-padding: 24px; 
             --header-height: 80px;
         }
@@ -39,7 +38,7 @@
             font-family: var(--font-main);
             background-color: var(--bg-body);
             margin: 0; padding: 0;
-            /* 關鍵：鎖定高度，禁止捲動 */
+            /* 鎖定畫面高度，禁止整體捲動 */
             height: 100vh; height: 100dvh;
             overflow: hidden;
             display: flex; flex-direction: column;
@@ -53,25 +52,24 @@
         }
         #header-container * { pointer-events: auto; }
 
-        /* --- 主佈局容器 (Flex Column) --- */
+        /* --- 主佈局容器 --- */
         #app {
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
-            padding-top: var(--header-height); /* 避開 Header */
+            padding-top: var(--header-height);
             box-sizing: border-box;
         }
 
         /* --- 內容對齊容器 --- */
         .layout-container {
             width: 100%;
-            /* 左右間距一致 */
             padding: 0 var(--page-padding); 
             box-sizing: border-box;
             display: flex; flex-direction: column;
-            flex: 1; /* 佔滿剩餘高度 */
-            max-width: 800px; /* 電腦版限制最大寬度，比較好看 */
-            margin: 0 auto;   /* 置中 */
-            overflow: hidden; /* 防止內部溢出 */
+            flex: 1; 
+            max-width: 800px; 
+            margin: 0 auto;   
+            overflow: hidden;
         }
 
         /* 1. 大標題 */
@@ -82,7 +80,7 @@
             color: var(--text-dark);
             margin: 10px 0 16px 0;
             line-height: 1.1;
-            flex-shrink: 0; /* 禁止壓縮 */
+            flex-shrink: 0; /* 防止被擠壓 */
         }
 
         /* 2. 篩選欄位 */
@@ -98,7 +96,7 @@
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.8);
             cursor: pointer;
-            flex-shrink: 0; /* 禁止壓縮 */
+            flex-shrink: 0; /* 防止被擠壓 */
             transition: background 0.2s;
         }
         .filter-bar:active { background: rgba(255,255,255,0.9); }
@@ -112,24 +110,25 @@
         }
         .filter-arrow { color: var(--text-grey); font-size: 24px; }
 
-        /* 3. 卡片網格 (自動填滿剩餘空間) */
+        /* 3. 卡片網格 (修正消失問題) */
         .grid-container {
-            flex: 1; /* 關鍵：自動長高填滿中間區域 */
+            flex: 1; /* 自動填滿剩餘高度 */
             width: 100%;
-            min-height: 0; /* 允許 Flex 子元素縮小 */
+            min-height: 0; /* 允許縮小 */
             display: grid;
-            grid-template-columns: 1fr; /* 手機單欄 */
+            grid-template-columns: 1fr;
+            
+            /* ★ 關鍵修正：設定列高為 1fr，讓它填滿 Flex 容器 ★ */
+            grid-template-rows: 1fr;
+            
             gap: 16px;
             perspective: 1000px;
             justify-items: center;
-            /* 讓內容垂直置中，或靠上對齊 */
-            align-content: start; 
-            padding-bottom: 10px;
+            padding-bottom: 16px; /* 底部留一點縫隙 */
         }
 
-        /* 平板以上改為雙欄 */
         @media (min-width: 600px) {
-            .grid-container { grid-template-columns: 1fr 1fr; align-content: center; }
+            .grid-container { grid-template-columns: 1fr 1fr; }
         }
 
         /* 單張卡片 */
@@ -158,13 +157,13 @@
         .front-face { z-index: 2; }
         
         .visual-wrapper {
-            flex: 1.2; width: 100%; position: relative;
+            flex: 1.2; /* 圖片區佔比較大 */
+            width: 100%; position: relative;
             background: #f0f0f0; overflow: hidden;
             isolation: isolate;
         }
         .word-image { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 
-        /* 右上角獨立按鈕 */
         .action-cluster-float {
             position: absolute; top: 12px; right: 12px; z-index: 20;
             display: flex; gap: 8px;
@@ -178,9 +177,9 @@
             border: none;
         }
 
-        /* 底部內容 */
         .bottom-content {
-            flex: 1; width: 100%; padding: 12px 16px; box-sizing: border-box;
+            flex: 1; /* 文字區自動填滿剩餘空間 */
+            width: 100%; padding: 12px 16px; box-sizing: border-box;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             text-align: center; background: #fff;
         }
@@ -220,11 +219,11 @@
         .trans-text { font-size: 1.5rem; font-weight: 500; color: #FFFFFF; margin-bottom: 16px; }
         .hint-text { font-family: var(--font-eng); font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); letter-spacing: 1px; text-transform: uppercase; }
 
-        /* --- 4. 底部導航列 (修改：長條狀、置底、不重疊) --- */
+        /* --- 4. 底部導航列 --- */
         .nav-bar-container {
             width: 100%;
-            flex-shrink: 0; /* 禁止壓縮 */
-            padding: 0 16px 16px 16px; /* 外距 */
+            flex-shrink: 0;
+            padding: 0 16px 24px 16px; /* 底部留白多一點 */
             box-sizing: border-box;
             display: flex; justify-content: center;
             background: transparent;
@@ -232,10 +231,9 @@
 
         .nav-controls {
             width: 100%;
-            max-width: 800px; /* 跟上方內容對齊 */
+            max-width: 800px;
             height: 72px;
-            /* 顏色稍微淡一點 */
-            background: rgba(255, 255, 255, 0.6); 
+            background: rgba(255, 255, 255, 0.7); /* 淡色背景 */
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-radius: 24px;
             display: flex; align-items: center; justify-content: space-between;
@@ -298,7 +296,6 @@
         
         @media (max-width: 400px) {
             .page-title { font-size: 2rem; }
-            .nav-controls { height: 64px; }
         }
     </style>
 </head>
@@ -308,9 +305,7 @@
     <div id="header-container"></div>
     
     <div id="app">
-        <!-- 統一對齊容器 -->
         <div class="layout-container">
-            
             <!-- 1. 標題 -->
             <h1 class="page-title">7000 Vocabulary</h1>
 
@@ -323,14 +318,13 @@
                 <span class="material-icons filter-arrow">expand_more</span>
             </div>
 
-            <!-- 3. 卡片網格 (自動填滿高度) -->
+            <!-- 3. 卡片網格 -->
             <div id="grid-wrapper" class="grid-container">
                 <!-- JS 渲染內容 -->
             </div>
-            
-        </div> <!-- end layout-container -->
+        </div>
 
-        <!-- 4. 底部導航 (獨立區塊，確保在最下方) -->
+        <!-- 4. 底部導航 -->
         <div class="nav-bar-container">
             <div class="nav-controls">
                 <button class="nav-btn" onclick="nextPage(-1)">
@@ -690,7 +684,7 @@
         return wrapper;
     }
 
-    // --- 核心互動 ---
+    // --- 核心互動：修復翻面問題 ---
     function bindCardInteraction(wrapperElement) {
         const card = wrapperElement.querySelector('.card');
         let startX = 0, startY = 0;
@@ -732,12 +726,14 @@
             card.style.transition = 'transform 0.4s ease'; 
 
             if (getPageSize() === 1 && Math.abs(diffX) > 80 && hasMoved) {
+                // Swipe
                 const dir = diffX > 0 ? -1 : 1; 
                 const flyX = diffX > 0 ? window.innerWidth : -window.innerWidth;
                 const baseTransform = card.classList.contains('flipped') ? 'rotateY(180deg)' : '';
                 card.style.transform = `translateX(${flyX}px) rotate(${diffX > 0 ? 20 : -20}deg) ${baseTransform}`;
                 setTimeout(() => nextPage(dir), 200);
             } else {
+                // Reset (Cancel Swipe or Tap)
                 const baseTransform = card.classList.contains('flipped') ? 'rotateY(180deg)' : '';
                 card.style.transform = baseTransform;
 
@@ -748,6 +744,7 @@
             }
         });
 
+        // 桌面版 Click 監聽
         if (!('ontouchstart' in window)) {
             wrapperElement.addEventListener('click', (e) => {
                 if (e.target.closest('button') || e.target.closest('a') || e.target.closest('.status-btn')) return;
