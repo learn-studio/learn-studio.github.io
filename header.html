@@ -1,290 +1,175 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Site Header</title>
-    <!-- 引入 Google Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- 引入英文字體 Outfit -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        /* --- 基礎設定 --- */
-        body { margin: 0; padding: 0; width: 100%; font-family: 'Segoe UI', sans-serif; background-color: transparent; overflow-x: hidden; }
-
-        /* --- Header CSS --- */
-        .site-header {
-            position: sticky; 
-            top: 0; left: 0;
-            width: 100%;
-            height: 80px; 
-            padding: 0 24px;
-            
-            background-color: transparent; 
-            /* 移除 blur 以免影響點擊判定，或保留視需求而定 */
-            /* backdrop-filter: blur(8px); */ 
-            
-            border-bottom: none; 
-            box-shadow: none;
-            
-            display: flex; align-items: center; justify-content: space-between;
-            box-sizing: border-box;
-            
-            /* ★ 關鍵修正：提高層級並強制開啟點擊 ★ */
-            z-index: 9999; 
-            pointer-events: auto !important;
-            
-            padding-top: env(safe-area-inset-top);
-            height: calc(80px + env(safe-area-inset-top));
-        }
-
-        .site-header a, .site-header button { 
-            /* 確保連結與按鈕都可點擊 */
-            pointer-events: auto !important; 
-            text-decoration: none !important; 
-        }
-
-        /* ★ Logo 圖片 ★ */
-        .header-logo {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            height: 100%; 
-            cursor: pointer;
-            z-index: 10002; /* 確保在最上層 */
-        }
-
-        .header-logo img {
-            height: 40px; /* 設定高度，讓寬度自適應 */
-            width: auto;
-            object-fit: contain;
-            display: block;
-        }
-
-        /* 電腦版導航選單 */
-        .desktop-nav { display: flex; align-items: center; gap: 40px; }
-
-        .nav-item {
-            color: #555 !important;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            position: relative;
-            transition: color 0.2s;
-            display: flex; align-items: center;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        .nav-item:hover { color: #0056D2 !important; }
-
-        /* 下拉選單 */
-        .dropdown { position: relative; height: 100%; display: flex; align-items: center; }
+<style>
+    /* --- Header CSS --- */
+    .site-header {
+        position: sticky; 
+        top: 0; left: 0;
+        width: 100%;
+        height: 80px; 
+        padding: 0 24px;
         
-        .dropdown-content {
-            display: none; position: absolute; top: 100%; right: 0; margin-top: 10px;
-            background-color: #fff; min-width: 200px;
-            border: none;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            border-radius: 12px;
-            padding: 8px;
-            overflow: visible; z-index: 10003;
-        }
+        background-color: transparent; 
         
-        /* 增加透明橋接區塊，防止滑鼠移開時選單消失 */
-        .dropdown-content::before {
-            content: ''; position: absolute; top: -20px; left: 0; width: 100%; height: 20px;
-        }
-
-        .dropdown:hover .dropdown-content { display: block; animation: fadeIn 0.2s ease-in-out; }
-
-        .dropdown-content a {
-            color: #333 !important; padding: 12px 16px; display: block; font-size: 15px;
-            transition: background 0.1s; text-align: left; border-radius: 8px;
-        }
-        .dropdown-content a:hover { background-color: #F5F7FA; color: #0056D2 !important; }
-
-        /* 手機版 Menu 按鈕 */
-        .mobile-menu-btn {
-            display: none; 
-            cursor: pointer;
-            width: 44px; height: 44px; padding: 0; /* 加大點擊範圍 */
-            align-items: center; justify-content: flex-end;
-            background-color: transparent; border: none;
-            color: #0056D2; 
-            outline: none; transition: transform 0.2s, color 0.2s;
-            z-index: 10005; /* 確保比選單高 */
-        }
+        border-bottom: none; 
+        box-shadow: none;
         
-        .mobile-menu-btn:active { transform: scale(0.9); }
-        .mobile-menu-btn .material-icons { font-size: 32px; }
+        display: flex; align-items: center; justify-content: space-between;
+        box-sizing: border-box;
         
-        /* 當選單打開時變白色 */
-        .mobile-menu-btn.white { color: #fff !important; }
-
-        /* ★ 修改 2：側邊抽屜選單 (藍色風格) ★ */
+        /* 關鍵修正：確保 Header 本身可點擊 */
+        z-index: 9999; 
+        pointer-events: auto !important;
         
-        /* 背景遮罩 */
-        .menu-backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 10003;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(2px);
-        }
-        .menu-backdrop.open { opacity: 1; pointer-events: auto; }
+        padding-top: env(safe-area-inset-top);
+        height: calc(80px + env(safe-area-inset-top));
+    }
 
-        /* 選單本體 */
-        .mobile-nav-drawer {
-            position: fixed; 
-            top: 0; 
-            right: 0; 
-            width: 75%; 
-            max-width: 320px;
-            height: 100vh;
-            
-            background: #0056D2; /* 藍底 */
-            
-            z-index: 10004;
-            
-            /* 預設在右側螢幕外 */
-            transform: translateX(100%);
-            
-            /* ★ 關鍵修復：解決右側藍色漸層問題 ★ */
-            /* 預設 hidden，這樣陰影就不會顯示出來 */
-            visibility: hidden; 
-            box-shadow: none; 
-            
-            /* visibility 延遲 0.3s 變化，等滑動動畫結束後才隱藏 */
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.35s;
-            
-            padding-top: 100px; 
-            display: flex; flex-direction: column;
-        }
-        
-        .mobile-nav-drawer.open { 
-            transform: translateX(0); 
-            /* 打開時立即顯示 */
-            visibility: visible; 
-            /* 只有打開時才有陰影 */
-            box-shadow: -10px 0 30px rgba(0,86,210,0.4);
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
-        }
-        
-        /* 選單項目樣式 - 白字 */
-        .drawer-group-title {
-            padding: 24px 32px 12px 32px;
-            color: rgba(255,255,255,0.6);
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-family: 'Outfit', sans-serif;
-        }
+    .site-header a, .site-header button { 
+        pointer-events: auto !important; 
+        text-decoration: none !important; 
+    }
 
-        .drawer-item {
-            padding: 16px 32px;
-            text-decoration: none !important;
-            color: #fff !important; 
-            font-size: 18px; 
-            font-weight: 600;
-            display: flex; align-items: center;
-            transition: background 0.1s;
-        }
-        
-        .drawer-item:active { background: rgba(255,255,255,0.1); }
-        
-        /* 子項目 */
-        .drawer-item.sub {
-            padding-left: 32px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.9) !important;
-        }
-        
-        .drawer-divider {
-            height: 1px; background: rgba(255,255,255,0.2); margin: 10px 20px;
-        }
+    /* Logo */
+    .header-logo {
+        display: flex; align-items: center; text-decoration: none; height: 100%; cursor: pointer;
+        z-index: 10002;
+    }
+    .header-logo img {
+        height: 40px; width: auto; object-fit: contain; display: block;
+    }
 
-        /* RWD */
-        @media (max-width: 768px) {
-            .desktop-nav { display: none; }
-            .mobile-menu-btn { display: flex; } 
-        }
+    /* Desktop Nav */
+    .desktop-nav { display: flex; align-items: center; gap: 40px; }
+    .nav-item {
+        color: #555 !important; font-weight: 600; font-size: 16px; cursor: pointer;
+        position: relative; transition: color 0.2s; display: flex; align-items: center;
+        font-family: 'Outfit', sans-serif;
+    }
+    .nav-item:hover { color: #0056D2 !important; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body>
+    /* Dropdown */
+    .dropdown { position: relative; height: 100%; display: flex; align-items: center; }
+    .dropdown-content {
+        display: none; position: absolute; top: 100%; right: 0; margin-top: 10px;
+        background-color: #fff; min-width: 200px;
+        border: none; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        border-radius: 12px; padding: 8px; overflow: visible; z-index: 10003;
+    }
+    .dropdown-content::before {
+        content: ''; position: absolute; top: -20px; left: 0; width: 100%; height: 20px;
+    }
+    .dropdown:hover .dropdown-content { display: block; animation: fadeIn 0.2s ease-in-out; }
+    .dropdown-content a {
+        color: #333 !important; padding: 12px 16px; display: block; font-size: 15px;
+        transition: background 0.1s; text-align: left; border-radius: 8px;
+    }
+    .dropdown-content a:hover { background-color: #F5F7FA; color: #0056D2 !important; }
 
-    <!-- Header -->
-    <header class="site-header" id="siteHeader">
-        <!-- Logo 圖片 -->
-        <a href="#" class="header-logo">
-            <img src="image/learnkits_logo.png" alt="LearnKits">
-        </a>
+    /* Mobile Menu Btn */
+    .mobile-menu-btn {
+        display: none; cursor: pointer;
+        width: 44px; height: 44px; padding: 0;
+        align-items: center; justify-content: flex-end;
+        background-color: transparent; border: none;
+        color: #0056D2; outline: none; transition: transform 0.2s, color 0.2s;
+        z-index: 10005;
+    }
+    .mobile-menu-btn:active { transform: scale(0.9); }
+    .mobile-menu-btn .material-icons { font-size: 32px; }
+    .mobile-menu-btn.white { color: #fff !important; }
 
-        <!-- 電腦版導航 -->
-        <nav class="desktop-nav">
-            <div class="dropdown">
-                <span class="nav-item">
-                    Resources 
-                    <span class="material-icons" style="font-size: 20px; margin-left: 4px;">expand_more</span>
-                </span>
-                <div class="dropdown-content">
-                    <a href="https://learn-kits.github.io">Vocabulary 7000</a>
-                </div>
+    /* Menu Backdrop */
+    .menu-backdrop {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 10003;
+        opacity: 0; pointer-events: none; /* 平常不擋點擊 */
+        transition: opacity 0.3s ease;
+        backdrop-filter: blur(2px);
+    }
+    .menu-backdrop.open { opacity: 1; pointer-events: auto; /* 打開時擋點擊 */ }
+
+    /* Mobile Drawer */
+    .mobile-nav-drawer {
+        position: fixed; top: 0; right: 0; width: 75%; max-width: 320px; height: 100vh;
+        background: #0056D2; z-index: 10004;
+        transform: translateX(100%);
+        visibility: hidden; box-shadow: none;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.35s;
+        padding-top: 100px; display: flex; flex-direction: column;
+        pointer-events: auto; /* 確保選單內部可點 */
+    }
+    .mobile-nav-drawer.open { 
+        transform: translateX(0); visibility: visible; 
+        box-shadow: -10px 0 30px rgba(0,86,210,0.4);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
+    }
+
+    .drawer-group-title {
+        padding: 24px 32px 12px 32px; color: rgba(255,255,255,0.6);
+        font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        font-family: 'Outfit', sans-serif;
+    }
+    .drawer-item {
+        padding: 16px 32px; text-decoration: none !important; color: #fff !important; 
+        font-size: 18px; font-weight: 600; display: flex; align-items: center; transition: background 0.1s;
+    }
+    .drawer-item:active { background: rgba(255,255,255,0.1); }
+    .drawer-item.sub { padding-left: 32px; font-weight: 500; color: rgba(255, 255, 255, 0.9) !important; }
+    .drawer-divider { height: 1px; background: rgba(255,255,255,0.2); margin: 10px 20px; }
+
+    @media (max-width: 768px) {
+        .desktop-nav { display: none; }
+        .mobile-menu-btn { display: flex; } 
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<header class="site-header" id="siteHeader">
+    <a href="#" class="header-logo">
+        <img src="image/learnkits_logo.png" alt="LearnKits">
+    </a>
+    <nav class="desktop-nav">
+        <div class="dropdown">
+            <span class="nav-item">
+                Resources <span class="material-icons" style="font-size: 20px; margin-left: 4px;">expand_more</span>
+            </span>
+            <div class="dropdown-content">
+                <a href="https://learn-kits.github.io">Vocabulary 7000</a>
             </div>
-            <a href="https://learn-kits.github.io/about" class="nav-item">About</a>
-        </nav>
+        </div>
+        <a href="https://learn-kits.github.io/about" class="nav-item">About</a>
+    </nav>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <span class="material-icons">grid_view</span>
+    </button>
+</header>
 
-        <!-- 手機版 Menu 按鈕 -->
-        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
-            <span class="material-icons">grid_view</span>
-        </button>
-    </header>
+<div class="menu-backdrop" id="menuBackdrop" onclick="toggleMobileMenu()"></div>
 
-    <!-- 遮罩層 -->
-    <div class="menu-backdrop" id="menuBackdrop" onclick="toggleMobileMenu()"></div>
+<div class="mobile-nav-drawer" id="mobileNav">
+    <div class="drawer-group-title">Resources</div>
+    <a href="https://learn-kits.github.io" class="drawer-item sub">Vocabulary 7000</a>
+    <div class="drawer-divider"></div>
+    <a href="https://learn-kits.github.io/about" class="drawer-item">About LearnKits</a>
+</div>
 
-    <!-- 手機版側邊滑入選單 -->
-    <div class="mobile-nav-drawer" id="mobileNav">
+<script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobileNav');
+        const backdrop = document.getElementById('menuBackdrop');
+        const btn = document.querySelector('.mobile-menu-btn');
+        const btnIcon = btn.querySelector('.material-icons');
         
-        <div class="drawer-group-title">Resources</div>
-        <a href="https://learn-kits.github.io" class="drawer-item sub">Vocabulary 7000</a>
-        
-        <div class="drawer-divider"></div>
-
-        <a href="https://learn-kits.github.io/about" class="drawer-item">About LearnKits</a>
-        
-    </div>
-
-    <script>
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileNav');
-            const backdrop = document.getElementById('menuBackdrop');
-            const btn = document.querySelector('.mobile-menu-btn');
-            const btnIcon = btn.querySelector('.material-icons');
-            
-            if (menu.classList.contains('open')) {
-                // 關閉
-                menu.classList.remove('open');
-                backdrop.classList.remove('open');
-                
-                // 恢復按鈕
-                btnIcon.innerText = 'grid_view';
-                btn.classList.remove('white');
-            } else {
-                // 開啟
-                menu.classList.add('open');
-                backdrop.classList.add('open');
-                
-                // 按鈕變關閉且變白
-                btnIcon.innerText = 'close';
-                btn.classList.add('white');
-            }
+        if (menu.classList.contains('open')) {
+            menu.classList.remove('open');
+            backdrop.classList.remove('open');
+            btnIcon.innerText = 'grid_view';
+            btn.classList.remove('white');
+        } else {
+            menu.classList.add('open');
+            backdrop.classList.add('open');
+            btnIcon.innerText = 'close';
+            btn.classList.add('white');
         }
-    </script>
-
-</body>
-</html>
+    }
+</script>
