@@ -74,7 +74,7 @@
             overflow: hidden;
         }
 
-        /* 1. Title */
+        /* Title */
         .page-title {
             font-family: var(--font-eng);
             font-weight: 800;
@@ -85,7 +85,7 @@
             flex-shrink: 0; 
         }
 
-        /* 2. Filter Bar */
+        /* Filter Bar */
         .filter-bar {
             width: 100%;
             height: 52px;
@@ -112,14 +112,14 @@
         }
         .filter-arrow { color: var(--text-grey); font-size: 24px; }
 
-        /* 3. Grid Container */
+        /* Grid Container */
         .grid-container {
             flex: 1; 
             width: 100%;
             min-height: 0; 
             display: grid;
             grid-template-columns: 1fr;
-            grid-template-rows: 1fr; /* Fix for missing cards */
+            grid-template-rows: 1fr; 
             gap: 16px;
             perspective: 1000px;
             justify-items: center;
@@ -194,7 +194,6 @@
             display: flex; gap: 8px; justify-content: center; align-items: center; margin-bottom: 12px;
         }
         
-        /* --- 卡片上的狀態按鈕 --- */
         .status-row { display: flex; gap: 16px; justify-content: center; align-items: center; width: 100%; }
         
         .status-btn {
@@ -204,41 +203,53 @@
             border: 1px solid #eee; background: #fff;
         }
         
-        /* 預設顏色 (未選中) */
         .status-btn.green { color: #2E7D32; background: #F1F8E9; border-color: transparent; }   
         .status-btn.yellow { color: #F9A825; background: #FFFDE7; border-color: transparent; }  
         .status-btn.red { color: #C62828; background: #FFEBEE; border-color: transparent; }    
         
-        /* 選中狀態 (強制生效) */
         .status-btn.green.active { background: var(--status-green) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4); }
         .status-btn.yellow.active { background: var(--status-yellow) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4); }
         .status-btn.red.active { background: var(--status-red) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4); }
 
-        /* --- 狀態回饋遮罩動畫 --- */
+        /* --- 狀態回饋遮罩動畫 (修正置中) --- */
         .feedback-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
             z-index: 50;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            /* 完美置中設定 */
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            text-align: center;
+            
             border-radius: var(--card-radius);
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         .feedback-overlay.show { opacity: 1; }
         
+        /* 內容容器置中 */
+        .feedback-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
         .feedback-icon {
-            font-size: 80px; margin-bottom: 10px; transform: scale(0.5);
+            font-size: 88px; margin-bottom: 12px; transform: scale(0.5);
+            line-height: 1;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .feedback-overlay.show .feedback-icon { transform: scale(1); }
         
         .feedback-text {
-            font-family: var(--font-eng); font-weight: 800; font-size: 1.5rem;
+            font-family: var(--font-eng); font-weight: 800; font-size: 1.6rem;
             text-transform: uppercase; letter-spacing: 2px;
             opacity: 0; transform: translateY(10px); transition: all 0.3s ease 0.1s;
         }
         .feedback-overlay.show .feedback-text { opacity: 1; transform: translateY(0); }
         
-        /* 回饋內容顏色 */
         .feedback-content.green { color: var(--status-green); }
         .feedback-content.yellow { color: var(--status-yellow); }
         .feedback-content.red { color: var(--status-red); }
@@ -317,7 +328,6 @@
 
         .status-filter-btn { display: flex; align-items: center; gap: 6px; }
         
-        /* 設定面板按鈕顏色 */
         .status-filter-btn.green.active { background: var(--status-green) !important; border-color: var(--status-green) !important; color: #fff !important; }
         .status-filter-btn.yellow.active { background: var(--status-yellow) !important; border-color: var(--status-yellow) !important; color: #fff !important; }
         .status-filter-btn.red.active { background: var(--status-red) !important; border-color: var(--status-red) !important; color: #fff !important; }
@@ -416,11 +426,10 @@
 
     let fullVocabData = [], displayData = [];
     
-    // Filter State: Combined Logic
     let filterState = {
         level: 'All',
         letter: 'A',
-        status: 'all' // all, none, green, yellow, red
+        status: 'all' 
     };
     
     let sortMode = 'sequential'; 
@@ -682,7 +691,6 @@
             <div class="card">
                 <div class="card-face front-face">
                     
-                    <!-- Feedback Overlay -->
                     <div class="feedback-overlay" id="overlay-${kkId}">
                         <div class="feedback-content">
                             <span class="material-icons feedback-icon">check_circle</span>
@@ -777,13 +785,13 @@
                 content.className = 'feedback-content ' + status; 
                 
                 if (status === 'green') {
-                    icon.innerText = 'check_circle';
+                    icon.innerText = 'sentiment_very_satisfied';
                     text.innerText = 'Mastered';
                 } else if (status === 'yellow') {
-                    icon.innerText = 'error'; 
+                    icon.innerText = 'sentiment_neutral'; 
                     text.innerText = 'Normal';
                 } else if (status === 'red') {
-                    icon.innerText = 'warning';
+                    icon.innerText = 'sentiment_very_dissatisfied';
                     text.innerText = 'Hard';
                 }
 
