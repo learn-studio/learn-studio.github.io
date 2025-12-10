@@ -211,34 +211,22 @@
         .status-btn.yellow.active { background: var(--status-yellow) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4); }
         .status-btn.red.active { background: var(--status-red) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4); }
 
-        /* --- 狀態回饋遮罩動畫 (修正置中) --- */
+        /* --- 狀態回饋遮罩動畫 --- */
         .feedback-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
             z-index: 50;
-            /* 完美置中設定 */
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             text-align: center;
-            
             border-radius: var(--card-radius);
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         .feedback-overlay.show { opacity: 1; }
         
-        /* 內容容器置中 */
-        .feedback-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+        .feedback-content { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
         .feedback-icon {
-            font-size: 88px; margin-bottom: 12px; transform: scale(0.5);
-            line-height: 1;
+            font-size: 88px; margin-bottom: 12px; transform: scale(0.5); line-height: 1;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .feedback-overlay.show .feedback-icon { transform: scale(1); }
@@ -414,6 +402,7 @@
 <script>
     const SHEET_ID = '1Piz5rwAWy9f0B0WFjz6WlBTfkp89r_7q4mo41teEkoE';
     const STATUS_KEY = 'learnkits_status_db'; 
+    const APP_STATE_KEY = 'learnkits_app_state_v1'; // 新增：狀態儲存 Key
 
     const LEVEL_CONFIG = [
         { level: 'Level 1', gid: '1467595538' },
@@ -426,6 +415,7 @@
 
     let fullVocabData = [], displayData = [];
     
+    // 預設狀態
     let filterState = {
         level: 'All',
         letter: 'A',
@@ -436,13 +426,15 @@
     let currentIndex = 0;
     let statusDB = {}; 
     const phoneticCache = {}; 
+    let savedIndex = 0; // 用來暫存讀取到的 index
     
     const gridWrapper = document.getElementById('grid-wrapper');
 
-    // Init
-    loadStatusDB();
-    fetchAllLevels();
-    initUI();
+    // Init Sequence
+    loadStatusDB(); // 1. Load Word Mastery
+    loadAppState(); // 2. Load Filters & Index
+    initUI();       // 3. Update UI buttons based on loaded state
+    fetchAllLevels(); // 4. Fetch Data -> Apply Filters -> Restore Index
     
     window.addEventListener('resize', () => {
         renderGrid();
@@ -452,6 +444,8 @@
         if (window.innerWidth >= 600) return 2; 
         return 1; 
     }
+
+    // --- Persistence Logic ---
 
     function loadStatusDB() {
         try {
@@ -463,6 +457,33 @@
     function saveStatusDB() {
         localStorage.setItem(STATUS_KEY, JSON.stringify(statusDB));
     }
+
+    // 新增：儲存 App 狀態 (Filter, Sort, Index)
+    function saveAppState() {
+        const state = {
+            filter: filterState,
+            sort: sortMode,
+            index: currentIndex
+        };
+        localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+    }
+
+    // 新增：讀取 App 狀態
+    function loadAppState() {
+        try {
+            const raw = localStorage.getItem(APP_STATE_KEY);
+            if (raw) {
+                const state = JSON.parse(raw);
+                if (state.filter) filterState = state.filter;
+                if (state.sort) sortMode = state.sort;
+                if (typeof state.index === 'number') savedIndex = state.index;
+            }
+        } catch(e) { 
+            console.log('No saved state found, using defaults.');
+        }
+    }
+
+    // --- End Persistence ---
 
     async function fetchAllLevels() {
         const promises = LEVEL_CONFIG.map(config => {
@@ -481,7 +502,19 @@
 
         const allData = await Promise.all(promises);
         fullVocabData = mergeAndDeduplicate(allData.flat());
-        applyFilters(true);
+        
+        // Data loaded. Apply filters.
+        // false: Don't reset index to 0 yet, we want to restore savedIndex.
+        applyFilters(false);
+        
+        // Restore Saved Index (Check bounds)
+        if (savedIndex > 0 && savedIndex < displayData.length) {
+            currentIndex = savedIndex;
+        } else {
+            currentIndex = 0;
+        }
+        
+        renderGrid();
     }
 
     function processData(rawData, levelName) {
@@ -530,7 +563,7 @@
             btn.onclick = () => {
                 filterState.level = l; 
                 updateFilterUI();
-                applyFilters(true);
+                applyFilters(true); // User interaction -> Reset index
             };
             lvlContainer.appendChild(btn);
         });
@@ -543,7 +576,7 @@
             btn.onclick = () => {
                 filterState.letter = l; 
                 updateFilterUI();
-                applyFilters(true);
+                applyFilters(true); // User interaction -> Reset index
             };
             azContainer.appendChild(btn);
         });
@@ -633,9 +666,14 @@
 
         displayData = filtered;
         
-        if (resetIndex) currentIndex = 0;
-        if (currentIndex >= displayData.length) currentIndex = 0;
+        // If user changed filter, reset to 0. 
+        // If just reloading/refreshing logic, keep current (handled outside or passed false).
+        if (resetIndex) {
+            currentIndex = 0;
+        }
         
+        // Save state whenever filters are applied
+        saveAppState();
         renderGrid();
     }
 
@@ -653,6 +691,9 @@
         }
 
         currentIndex = next;
+        
+        // Save state whenever page changes
+        saveAppState();
         renderGrid();
     }
 
@@ -693,7 +734,7 @@
                     
                     <div class="feedback-overlay" id="overlay-${kkId}">
                         <div class="feedback-content">
-                            <span class="material-icons feedback-icon">check_circle</span>
+                            <span class="material-icons feedback-icon">sentiment_very_satisfied</span>
                             <div class="feedback-text">Mastered</div>
                         </div>
                     </div>
