@@ -6,18 +6,13 @@
         width: 100%;
         height: 80px; 
         padding: 0 24px;
-        
         background-color: transparent; 
-        
         border-bottom: none; 
         box-shadow: none;
-        
         display: flex; align-items: center; justify-content: space-between;
         box-sizing: border-box;
-        
         z-index: 9999; 
         pointer-events: auto !important;
-        
         padding-top: env(safe-area-inset-top);
         height: calc(80px + env(safe-area-inset-top));
     }
@@ -129,8 +124,8 @@
 </style>
 
 <header class="site-header" id="siteHeader">
-    <!-- Logo 加上 onclick -->
-    <a href="#" onclick="resetToHome(event)" class="header-logo">
+    <!-- 1. Logo: 加上判斷式 -->
+    <a href="https://learn-kits.github.io" onclick="if(window.resetToHome) { resetToHome(event); return false; }" class="header-logo">
         <img src="image/learnkits_logo.png" alt="LearnKits">
     </a>
     
@@ -140,8 +135,8 @@
                 Resources <span class="material-icons" style="font-size: 20px; margin-left: 4px;">expand_more</span>
             </span>
             <div class="dropdown-content">
-                <!-- 下拉選單連結 加上 onclick -->
-                <a href="#" onclick="resetToHome(event)">Vocabulary 7000</a>
+                <!-- 2. 下拉選單: 加上判斷式 -->
+                <a href="https://learn-kits.github.io" onclick="if(window.resetToHome) { resetToHome(event); return false; }">Vocabulary 7000</a>
             </div>
         </div>
         <a href="https://learn-kits.github.io/about" class="nav-item">About</a>
@@ -156,8 +151,8 @@
 
 <div class="mobile-nav-drawer" id="mobileNav">
     <div class="drawer-group-title">Resources</div>
-    <!-- 手機版選單連結 加上 onclick -->
-    <a href="#" onclick="resetToHome(event)" class="drawer-item sub">Vocabulary 7000</a>
+    <!-- 3. 手機版選單: 加上判斷式 -->
+    <a href="https://learn-kits.github.io" onclick="if(window.resetToHome) { resetToHome(event); return false; }" class="drawer-item sub">Vocabulary 7000</a>
     
     <div class="drawer-divider"></div>
     <a href="https://learn-kits.github.io/about" class="drawer-item">About LearnKits</a>
