@@ -49,11 +49,18 @@
         }
 
         /* --- Header 容器 --- */
-        #header-container {
-            position: absolute; top: 0; left: 0; width: 100%; z-index: 100;
-            height: var(--header-height);
-            pointer-events: none; 
-        }
+/* --- Header 容器 --- */
+#header-container {
+    /* 改為 fixed 讓它固定在視窗頂部，不會隨頁面捲動消失 */
+    position: fixed; 
+    top: 0; left: 0; width: 100%; 
+    
+    /* 提高 z-index，確保它比 config-overlay 或其他內容都高 */
+    z-index: 20000;
+    
+    height: var(--header-height);
+    pointer-events: none; 
+}
 
         /* --- App Layout --- */
         #app {
@@ -493,19 +500,23 @@
         document.getElementById('header-container').innerHTML = d;
     });
 
-    // Mobile Menu Toggle Logic
+// Mobile Menu Toggle Logic
     window.toggleMobileMenu = function() {
         const menu = document.getElementById('mobileNav');
         const backdrop = document.getElementById('menuBackdrop');
+        // 注意：這裡要從 document 抓，因為 header 是後來注入的
         const btn = document.querySelector('.mobile-menu-btn');
-        const btnIcon = btn ? btn.querySelector('.material-icons') : null;
         
+        // ★ 修正重點：改為抓取 'span'，不限制 class 名稱，避免找不到元素
+        const btnIcon = btn ? btn.querySelector('span') : null;
+        
+        // 如果抓不到按鈕或圖示，就停止執行 (這就是你現在點了沒反應的原因)
         if (!menu || !backdrop || !btnIcon) return; 
 
         if (menu.classList.contains('open')) {
             menu.classList.remove('open');
             backdrop.classList.remove('open');
-            btnIcon.innerText = 'grid_view';
+            btnIcon.innerText = 'menu'; // 這裡也要確認文字是否正確 (menu / grid_view)
             btn.classList.remove('white');
         } else {
             menu.classList.add('open');
